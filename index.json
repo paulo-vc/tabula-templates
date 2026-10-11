@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-10-08T17:43:22.881Z",
+  "updatedAt": "2026-10-11T20:32:30.416Z",
   "templates": [
     {
       "id": "dualidade",
       "name": "Dualidade",
       "description": "Ficha compatível com o sistema Daggerheart™: traços, Evasão, limiares de dano, Esperança, Estresse, armas e cartas de domínio. Ficha não oficial da comunidade. This product includes materials from the Daggerheart System Reference Document 1.0, © Critical Role, LLC, under the terms of the Darrington Press Community Gaming License. More information at www.daggerheart.com. Darrington Press™ and the Darrington Press authorized work logo are trademarks of Critical Role, LLC and used with permission.",
-      "author": "Tabula RPG",
+      "author": "Tabularium",
       "license": "DPCGL",
       "language": "pt-BR",
       "tags": [
@@ -21,6 +21,13 @@
           "sha256": "ad325185ce0526fa9c7ee7d0c9f3038f306406f8154b990cd84ecd63928ffec5",
           "size": 21645,
           "publishedAt": "2026-10-08T17:43:22.881Z"
+        },
+        {
+          "version": "1.2.0",
+          "sha256": "a1e7f049be29c20e9737a47636cfffda4545d942e26d63184dffbb969f30dc33",
+          "size": 21838,
+          "publishedAt": "2026-10-11T20:32:30.416Z",
+          "minAppVersion": "0.2.0"
         }
       ]
     }
