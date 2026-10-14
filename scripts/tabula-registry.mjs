@@ -5947,13 +5947,21 @@ var fieldBase = {
 	/** `gm`: visível apenas para o Mestre durante a sessão. */
 	visibility: _enum(["all", "gm"]).optional()
 };
+/**
+* Mostra um número (ou o valor atual de um recurso) como marcadores clicáveis, como as
+* bolinhas de uma ficha de papel: testes contra a morte, Esperança, espaços de magia.
+* Vale até `MAX_MARKS`; acima disso (ex.: um máximo calculado que cresceu), a ficha volta
+* ao campo numérico.
+*/
+var FIELD_DISPLAYS = ["marcadores"];
 var NumberFieldSchema = object({
 	...fieldBase,
 	type: literal("number"),
 	default: FiniteNumberSchema.optional(),
 	min: FiniteNumberSchema.optional(),
 	max: FiniteNumberSchema.optional(),
-	integer: boolean().optional()
+	integer: boolean().optional(),
+	display: _enum(FIELD_DISPLAYS).optional()
 });
 var TextFieldSchema = object({
 	...fieldBase,
@@ -5996,7 +6004,8 @@ var ResourceFieldSchema = object({
 	/** Fórmula do máximo. Se ausente, o máximo é digitado na ficha. */
 	max: FormulaSourceSchema.optional(),
 	/** Valor inicial (atual e, se não houver fórmula, também do máximo). */
-	default: FiniteNumberSchema.optional()
+	default: FiniteNumberSchema.optional(),
+	display: _enum(FIELD_DISPLAYS).optional()
 });
 /** Campo derivado: nunca é armazenado na ficha, é sempre calculado. */
 var ComputedFieldSchema = object({
@@ -6100,6 +6109,12 @@ var SystemTemplateSchema = object({
 	* em sistemas de dados de dualidade, "3d6" em outros…
 	*/
 	checkDice: string().max(LIMITS.label).optional(),
+	/**
+	* Campo numérico que é o modificador de iniciativa (ex.: "Iniciativa" no D&D, "Percepção"
+	* no Lendas d20). Com ele, o jogador rola a iniciativa pela ficha (`checkDice` + o valor) e
+	* o resultado entra na ordem de turno. Sem ele, o Mestre digita as iniciativas.
+	*/
+	initiative: IdSchema.optional(),
 	/** Versão mínima do app capaz de abrir este template. */
 	minAppVersion: SemVerSchema.optional(),
 	fields: array(FieldDefSchema).min(1).max(LIMITS.fields),
@@ -6340,6 +6355,10 @@ var issue$1 = (code, path, message) => ({
 /** Nó do grafo de dependências: `key` (campo calculado) ou `key.max` (máximo de recurso). */
 var nodeName = (key, target) => target === "max" ? `${key}.max` : key;
 function validateFieldDefaults(field, path, issues) {
+	if (field.type === "number" && field.display === "marcadores") {
+		const { min, max, integer } = field;
+		if (!integer || (min ?? 0) !== 0 || max === void 0 || max < 1 || max > 10) issues.push(issue$1("marcadores-invalidos", [...path, "display"], `Marcadores pedem um número inteiro de 0 até um máximo entre 1 e 10`));
+	}
 	if (field.type === "number") {
 		const { min, max, integer } = field;
 		if (min !== void 0 && max !== void 0 && min > max) issues.push(issue$1("intervalo-invalido", [...path, "min"], "O mínimo é maior que o máximo"));
@@ -6487,6 +6506,10 @@ function compileTemplate(template) {
 		const dice = parseDice(template.checkDice);
 		if (!dice.ok) issues.push(issue$1("dado-de-teste-invalido", ["checkDice"], dice.error.message));
 	}
+	if (template.initiative !== void 0) {
+		const field = fieldsById.get(template.initiative);
+		if (!field || field.type !== "number" && field.type !== "computed") issues.push(issue$1("iniciativa-invalida", ["initiative"], "A iniciativa precisa ser um campo de número ou calculado"));
+	}
 	const fieldIds = new Set(fieldsById.keys());
 	validateLayout(template.layouts.full, ["layouts", "full"], fieldIds, issues);
 	if (template.layouts.compact) validateLayout(template.layouts.compact, ["layouts", "compact"], fieldIds, issues);
@@ -6587,23 +6610,32 @@ function compareVersions(a, b) {
 * viaja no fragmento (`#`) do link de convite, que os navegadores nunca enviam a servidores.
 */
 var CampaignSecretSchema = string().regex(/^[A-Za-z0-9_-]{22}$/, "Segredo da campanha inválido");
+/**
+* Chave pública do Mestre (Ed25519, 32 bytes em base64url). Quem a tem no convite só aceita
+* como Mestre quem provar que possui a chave privada correspondente. Opcional: campanhas
+* e convites da v0.1 não têm chave (o jogador a fixa na primeira conexão).
+*/
+var GmKeySchema = string().regex(/^[A-Za-z0-9_-]{43}$/, "Chave do Mestre inválida");
+string().regex(/^[A-Za-z0-9_-]{43}$/, "Chave privada do Mestre inválida");
+var CampaignMemberSchema = object({
+	userId: IdSchema,
+	displayName: LabelSchema,
+	/** Ficha vinculada à campanha. Ausente enquanto o jogador ainda não escolheu/criou uma. */
+	sheetId: IdSchema.optional()
+});
 object({
 	id: IdSchema,
 	name: LabelSchema,
 	/** Usuário local do Mestre. */
 	gmId: IdSchema,
 	gmName: LabelSchema,
+	gmKey: GmKeySchema.optional(),
 	/** Template oficial da campanha: toda ficha vinculada deve ser deste sistema. */
 	templateRef: TemplateRefSchema,
 	/** Nome do sistema, para exibir mesmo antes de ele estar instalado no dispositivo. */
 	templateName: LabelSchema,
 	secret: CampaignSecretSchema,
-	members: array(object({
-		userId: IdSchema,
-		displayName: LabelSchema,
-		/** Ficha vinculada à campanha. Ausente enquanto o jogador ainda não escolheu/criou uma. */
-		sheetId: IdSchema.optional()
-	})).max(LIMITS.members),
+	members: array(CampaignMemberSchema).max(LIMITS.members),
 	createdAt: TimestampSchema,
 	updatedAt: TimestampSchema
 });
@@ -6613,6 +6645,7 @@ object({
 	name: LabelSchema,
 	gmId: IdSchema,
 	gmName: LabelSchema,
+	gmKey: GmKeySchema.optional(),
 	templateRef: TemplateRefSchema,
 	templateName: LabelSchema,
 	secret: CampaignSecretSchema
@@ -6726,7 +6759,7 @@ function prepareSubmission(text, context) {
 	const kind = payload?.kind;
 	if (kind === "tabula/sheet") return err([issue("ficha-em-vez-de-sistema", "Este arquivo é uma ficha. Exporte o sistema na tela \"Sistemas\" e envie esse arquivo.")]);
 	if (kind === "tabula/template") payload = payload.payload;
-	if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return err([issue("schema-invalido", "O arquivo não contém um sistema do Tabularium")]);
+	if (typeof payload !== "object" || payload === null || Array.isArray(payload)) return err([issue("schema-invalido", "O arquivo não contém um sistema do Tabularium RPG")]);
 	const fromFile = payload;
 	const validated = validateTemplate({
 		...payload,
@@ -6825,7 +6858,12 @@ object({
 	label: string().max(120),
 	result: RollResultSchema,
 	/** Rolagem secreta do Mestre: não sai do aparelho dele. */
-	secret: boolean()
+	secret: boolean(),
+	/**
+	* Para que serve a rolagem, além de entrar no registro. `iniciativa`: o Mestre usa o
+	* total como a iniciativa de quem rolou na ordem de turno.
+	*/
+	purpose: literal("iniciativa").optional()
 });
 /** Confere que o resultado é a soma dos dados declarados (e só deles). */
 function isConsistent(result) {
@@ -6857,6 +6895,30 @@ function isConsistent(result) {
 	});
 	return total === result.total && printDice(expression) === result.expression;
 }
+var CombatantSchema = object({
+	id: IdSchema,
+	name: LabelSchema,
+	initiative: number().int().min(-999).max(999),
+	/** Jogador da mesa (com a ficha na sessão) ou criatura controlada pelo Mestre. */
+	kind: _enum(["jogador", "npc"]),
+	/** Do jogador: assim ele reconhece a própria vez. */
+	userId: IdSchema.optional(),
+	/** Só o Mestre vê (ex.: o monstro que ainda não apareceu). */
+	hidden: boolean()
+});
+var uniqueIds = (combatants) => new Set(combatants.map((c) => c.id)).size === combatants.length;
+object({
+	phase: _enum(["preparando", "combate"]),
+	round: number().int().min(1).max(9999),
+	activeId: IdSchema.nullable(),
+	combatants: array(CombatantSchema).max(40)
+}).refine((t) => uniqueIds(t.combatants), "Participante repetido").refine((t) => t.activeId === null || t.combatants.some((c) => c.id === t.activeId), "Turno de quem não está no combate");
+object({
+	phase: _enum(["preparando", "combate"]),
+	round: number().int().min(1).max(9999),
+	activeId: IdSchema.nullable(),
+	combatants: array(CombatantSchema.omit({ hidden: true })).max(40)
+}).refine((t) => uniqueIds(t.combatants), "Participante repetido").refine((t) => t.activeId === null || t.combatants.some((c) => c.id === t.activeId), "Turno de quem não está no combate");
 //#endregion
 //#region ../../packages/templates/src/index.ts
 /**
@@ -6865,7 +6927,7 @@ function isConsistent(result) {
 */
 var BUILTIN_TEMPLATES = [{
 	id: "dnd5e-srd",
-	version: "1.2.0",
+	version: "1.4.0",
 	name: "D&D 5ª Edição (SRD 5.1)",
 	description: "Ficha para personagens de D&D 5ª edição. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium.",
 	author: "Tabularium",
@@ -6877,6 +6939,7 @@ var BUILTIN_TEMPLATES = [{
 		"dnd"
 	],
 	source: "builtin",
+	initiative: "iniciativa",
 	fields: [
 		{
 			"id": "nome",
@@ -7627,7 +7690,8 @@ var BUILTIN_TEMPLATES = [{
 			"default": 0,
 			"min": 0,
 			"max": 3,
-			"integer": true
+			"integer": true,
+			"display": "marcadores"
 		},
 		{
 			"id": "falhas_morte",
@@ -7637,7 +7701,8 @@ var BUILTIN_TEMPLATES = [{
 			"default": 0,
 			"min": 0,
 			"max": 3,
-			"integer": true
+			"integer": true,
+			"display": "marcadores"
 		},
 		{
 			"id": "condicoes",
@@ -7712,7 +7777,8 @@ var BUILTIN_TEMPLATES = [{
 			"default": 0,
 			"min": 0,
 			"max": 6,
-			"integer": true
+			"integer": true,
+			"display": "marcadores"
 		},
 		{
 			"id": "ataques",
@@ -7811,63 +7877,72 @@ var BUILTIN_TEMPLATES = [{
 			"key": "espacos_1",
 			"label": "Espaços de magia de 1º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_2",
 			"key": "espacos_2",
 			"label": "Espaços de magia de 2º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_3",
 			"key": "espacos_3",
 			"label": "Espaços de magia de 3º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_4",
 			"key": "espacos_4",
 			"label": "Espaços de magia de 4º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_5",
 			"key": "espacos_5",
 			"label": "Espaços de magia de 5º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_6",
 			"key": "espacos_6",
 			"label": "Espaços de magia de 6º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_7",
 			"key": "espacos_7",
 			"label": "Espaços de magia de 7º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_8",
 			"key": "espacos_8",
 			"label": "Espaços de magia de 8º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "espacos_9",
 			"key": "espacos_9",
 			"label": "Espaços de magia de 9º nível",
 			"type": "resource",
-			"default": 0
+			"default": 0,
+			"display": "marcadores"
 		},
 		{
 			"id": "magias",
@@ -8811,7 +8886,7 @@ var BUILTIN_TEMPLATES = [{
 	}
 }, {
 	id: "lendas-d20-orc",
-	version: "1.1.0",
+	version: "1.3.0",
 	name: "Lendas d20 (ORC)",
 	description: "Ficha para fantasia heroica d20 com graus de proficiência (destreinado a lendário), atributos como modificadores e três ações por turno. ORC Notice: This product is licensed under the ORC License held in the Library of Congress at TX 9-307-067 and available online at various locations including www.azoralaw.com/orclicense, www.gencon.com/orclicense and others. All warranties are disclaimed as set forth therein. Attribution: This product is based on the following Licensed Material: Player Core © 2023 Paizo Inc., Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter. Reserved Material: nomes, cenário e marcas da Paizo não são usados. Expressed Material: esta ficha (layout e textos) não é material licenciado.",
 	author: "Tabularium",
@@ -8823,6 +8898,7 @@ var BUILTIN_TEMPLATES = [{
 		"orc"
 	],
 	source: "builtin",
+	initiative: "percepcao",
 	fields: [
 		{
 			"id": "nome",
@@ -8929,7 +9005,8 @@ var BUILTIN_TEMPLATES = [{
 			"type": "resource",
 			"default": 1,
 			"max": "3",
-			"description": "Gaste para rolar de novo ou para evitar a morte."
+			"description": "Gaste para rolar de novo ou para evitar a morte.",
+			"display": "marcadores"
 		},
 		{
 			"id": "idiomas",
@@ -9321,7 +9398,8 @@ var BUILTIN_TEMPLATES = [{
 			"type": "resource",
 			"default": 0,
 			"max": "4 - @ferido",
-			"description": "Chegar ao máximo é a morte. Ferido diminui o limite."
+			"description": "Chegar ao máximo é a morte. Ferido diminui o limite.",
+			"display": "marcadores"
 		},
 		{
 			"id": "ferido",
@@ -9331,7 +9409,8 @@ var BUILTIN_TEMPLATES = [{
 			"default": 0,
 			"min": 0,
 			"max": 3,
-			"integer": true
+			"integer": true,
+			"display": "marcadores"
 		},
 		{
 			"id": "prof_classe",
@@ -10371,7 +10450,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Pontos de Foco",
 			"type": "resource",
 			"default": 0,
-			"max": "3"
+			"max": "3",
+			"display": "marcadores"
 		},
 		{
 			"id": "magias",
