@@ -1,7 +1,31 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-10-11T20:32:30.416Z",
+  "updatedAt": "2026-10-28T20:11:55.299Z",
   "templates": [
+    {
+      "id": "chamado-cthulhu-7e-fan",
+      "name": "Chamado de Cthulhu 7e (fã)",
+      "description": "Ficha de investigador para Call of Cthulhu 7ª edição: características com metade e quinto, PV, PM, Sanidade (limitada pelos Mitos), Sorte, Movimento e Corpo calculados, perícias com os valores-base. Os testes são em 1d100: role igual ou abaixo do valor. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
+      "author": "Tabularium",
+      "license": "Fan-made (não oficial)",
+      "language": "pt-BR",
+      "tags": [
+        "horror",
+        "investigação",
+        "d100",
+        "lovecraft"
+      ],
+      "owner": "paulo-vc",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "sha256": "7771bdb69f1033af5d9f4db266d892781ab98fd4f5fdcd2d80a0dcf46240321c",
+          "size": 35301,
+          "publishedAt": "2026-10-28T20:11:55.182Z",
+          "minAppVersion": "0.2.0"
+        }
+      ]
+    },
     {
       "id": "dualidade",
       "name": "Dualidade",
@@ -27,6 +51,52 @@
           "sha256": "a1e7f049be29c20e9737a47636cfffda4545d942e26d63184dffbb969f30dc33",
           "size": 21838,
           "publishedAt": "2026-10-11T20:32:30.416Z",
+          "minAppVersion": "0.2.0"
+        }
+      ]
+    },
+    {
+      "id": "ordem-paranormal-fan",
+      "name": "Ordem Paranormal (fã)",
+      "description": "Ficha de agente para Ordem Paranormal RPG: NEX, atributos de 0 a 5, PV/PE/Sanidade calculados pela classe, perícias com grau de treinamento, rituais e inventário. Inclui o suplemento Sobrevivendo ao Horror: classe Sobrevivente (estágios) e a regra opcional de Pontos de Determinação. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
+      "author": "Tabularium",
+      "license": "Fan-made (não oficial)",
+      "language": "pt-BR",
+      "tags": [
+        "horror",
+        "investigação",
+        "paranormal"
+      ],
+      "owner": "paulo-vc",
+      "versions": [
+        {
+          "version": "1.1.0",
+          "sha256": "5f291b1542e826844a878cfc791a0b67fc36cbb2b4c738114779d80540babd47",
+          "size": 60323,
+          "publishedAt": "2026-10-28T20:11:55.075Z",
+          "minAppVersion": "0.2.0"
+        }
+      ]
+    },
+    {
+      "id": "tormenta20-fan",
+      "name": "Tormenta20 (fã)",
+      "description": "Ficha para Tormenta20: atributos somados direto, perícias com metade do nível e treinamento (+2/+4/+6), PV e PM pela classe, Defesa, ataques, magias e poderes. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
+      "author": "Tabularium",
+      "license": "Fan-made (não oficial)",
+      "language": "pt-BR",
+      "tags": [
+        "fantasia",
+        "d20",
+        "arton"
+      ],
+      "owner": "paulo-vc",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "sha256": "1a8bbd078f1833aeed23cab9ec55b7ecf8ed85edc0eb2f0cb7842bd0586f2865",
+          "size": 46147,
+          "publishedAt": "2026-10-28T20:11:55.299Z",
           "minAppVersion": "0.2.0"
         }
       ]
