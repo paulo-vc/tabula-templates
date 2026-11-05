@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-10-28T20:11:55.299Z",
+  "updatedAt": "2026-11-05T17:21:32.921Z",
   "templates": [
     {
       "id": "chamado-cthulhu-7e-fan",
@@ -52,6 +52,36 @@
           "size": 21838,
           "publishedAt": "2026-10-11T20:32:30.416Z",
           "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.3.0",
+          "sha256": "2ce59f21514573a7df20e6ffcc7c81005250527110a3f048d7e56f2450f1d2e5",
+          "size": 24092,
+          "publishedAt": "2026-11-05T17:21:32.921Z",
+          "minAppVersion": "1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "lendas-d20-orc",
+      "name": "Pathfinder 2e (fã)",
+      "description": "Ficha de personagem para Pathfinder 2ª edição (Remaster): atributos como modificadores, graus de proficiência (destreinado a lendário) que somam o nível, salvaguardas, Percepção, CA com limite de Destreza e escudo, PV por ancestralidade e classe, magia, condições e Volume. Ficha não oficial feita por fãs. Use com o livro de regras. Pathfinder 2e (fã) uses trademarks and/or copyrights owned by Paizo Inc., used under Paizo's Community Use Policy (paizo.com/licenses/communityuse). We are expressly prohibited from charging you to use or access this content. Pathfinder 2e (fã) is not published, endorsed, or specifically approved by Paizo. For more information about Paizo Inc. and Paizo products, visit paizo.com. ORC Notice: This product is licensed under the ORC License held in the Library of Congress at TX 9-307-067 and available online at various locations including www.azoralaw.com/orclicense, www.gencon.com/orclicense and others. All warranties are disclaimed as set forth therein. Attribution: This product is based on the following Licensed Material: Player Core © 2023 Paizo Inc., Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter. Expressed Material: esta ficha (layout e textos) não é material licenciado.",
+      "author": "Tabularium",
+      "license": "Fan-made (não oficial): Paizo Community Use Policy e ORC",
+      "language": "pt-BR",
+      "tags": [
+        "fantasia",
+        "d20",
+        "pathfinder"
+      ],
+      "owner": "paulo-vc",
+      "versions": [
+        {
+          "version": "1.6.0",
+          "sha256": "e31cb962eba50c4aa70da41eebd55e53a8b4488bfd37e0b2a1f624b0e908655c",
+          "size": 52943,
+          "publishedAt": "2026-11-05T17:21:32.785Z",
+          "minAppVersion": "1.0.0"
         }
       ]
     },
