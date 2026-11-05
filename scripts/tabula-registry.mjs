@@ -3089,7 +3089,7 @@ function isBackEdge(ctx, value) {
 }
 //#endregion
 //#region ../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/locales/en.js
-var error = () => {
+var error$1 = () => {
 	const Sizable = {
 		string: {
 			unit: "characters",
@@ -3193,6 +3193,199 @@ var error = () => {
 	};
 };
 function en_default() {
+	return { localeError: error$1() };
+}
+//#endregion
+//#region ../../node_modules/.pnpm/zod@4.6.5/node_modules/zod/v4/locales/pt-BR.js
+var error = () => {
+	const Sizable = {
+		string: { unit: "caracteres" },
+		file: { unit: "bytes" },
+		array: { unit: "elementos" },
+		set: { unit: "elementos" },
+		map: { unit: "entradas" }
+	};
+	function getSizing(origin) {
+		return Sizable[origin] ?? null;
+	}
+	const FormatDictionary = {
+		regex: "a entrada",
+		email: "o endereço de e-mail",
+		url: "o URL",
+		emoji: "o emoji",
+		uuid: "o UUID",
+		uuidv4: "o UUIDv4",
+		uuidv6: "o UUIDv6",
+		nanoid: "o nanoid",
+		guid: "o GUID",
+		cuid: "o cuid",
+		cuid2: "o cuid2",
+		ulid: "o ULID",
+		xid: "o XID",
+		ksuid: "o KSUID",
+		datetime: "a data e hora ISO",
+		date: "a data ISO",
+		time: "a hora ISO",
+		duration: "a duração ISO",
+		ipv4: "o endereço IPv4",
+		ipv6: "o endereço IPv6",
+		mac: "o endereço MAC",
+		cidrv4: "a faixa de endereços IPv4",
+		cidrv6: "a faixa de endereços IPv6",
+		base64: "o texto codificado em base64",
+		base64url: "o texto codificado em base64url",
+		json_string: "o texto JSON",
+		e164: "o número E.164",
+		credit_card: "o número de cartão de crédito",
+		currency_code: "o código de moeda",
+		iban: "o IBAN",
+		jwt: "o JWT",
+		template_literal: "a entrada"
+	};
+	const Gender = {
+		masculine: {
+			definite: "o",
+			indefinite: "um"
+		},
+		feminine: {
+			definite: "a",
+			indefinite: "uma"
+		}
+	};
+	const TypeDictionary = {
+		string: {
+			name: "texto",
+			articles: Gender.masculine
+		},
+		number: {
+			name: "número",
+			articles: Gender.masculine
+		},
+		int: {
+			name: "número inteiro",
+			articles: Gender.masculine
+		},
+		boolean: {
+			name: "valor booleano",
+			articles: Gender.masculine
+		},
+		bigint: {
+			name: "número bigint",
+			articles: Gender.masculine
+		},
+		symbol: {
+			name: "símbolo",
+			articles: Gender.masculine
+		},
+		undefined: {
+			name: "valor \"undefined\"",
+			articles: Gender.masculine
+		},
+		null: {
+			name: "valor \"nulo\"",
+			articles: Gender.masculine
+		},
+		never: {
+			name: "valor \"never\"",
+			articles: Gender.masculine
+		},
+		void: {
+			name: "valor \"void\"",
+			articles: Gender.masculine
+		},
+		date: {
+			name: "data",
+			articles: Gender.feminine
+		},
+		array: {
+			name: "vetor",
+			articles: Gender.masculine
+		},
+		object: {
+			name: "objeto",
+			articles: Gender.masculine
+		},
+		tuple: {
+			name: "tupla",
+			articles: Gender.feminine
+		},
+		record: {
+			name: "registro",
+			articles: Gender.masculine
+		},
+		map: {
+			name: "mapa",
+			articles: Gender.masculine
+		},
+		set: {
+			name: "conjunto",
+			articles: Gender.masculine
+		},
+		file: {
+			name: "arquivo",
+			articles: Gender.masculine
+		},
+		nonoptional: {
+			name: "valor não opcional",
+			articles: Gender.masculine
+		},
+		nan: {
+			name: "valor \"NaN\"",
+			articles: Gender.masculine
+		},
+		function: {
+			name: "função",
+			articles: Gender.feminine
+		}
+	};
+	function translateOriginWithArticle(type, articleType) {
+		const translatedValue = TypeDictionary[type] ?? {
+			name: `valor "${type}"`,
+			articles: Gender.masculine
+		};
+		return `${translatedValue.articles[articleType]} ${translatedValue.name}`;
+	}
+	return (issue) => {
+		switch (issue.code) {
+			case "invalid_type": return `Entrada inválida: esperava ${translateOriginWithArticle(issue.expected, "indefinite")}, recebeu ${translateOriginWithArticle(parsedType(issue.input), "indefinite")}`;
+			case "invalid_value":
+				if (issue.values.length === 1) return `Entrada inválida: esperava ${stringifyPrimitive(issue.values[0])}`;
+				return `Opção inválida: esperava uma das seguintes opções: ${joinValues(issue.values, "|")}`;
+			case "too_big": {
+				const adj = issue.inclusive ? "<=" : "<";
+				const sizing = getSizing(issue.origin);
+				if (sizing) return `Grande demais: esperava que ${translateOriginWithArticle(issue.origin, "definite")} tivesse ${adj} ${issue.maximum.toString()} ${sizing.unit ?? "elementos"}`;
+				return `Grande demais: esperava que ${translateOriginWithArticle(issue.origin, "definite")} fosse ${adj} ${issue.maximum.toString()}`;
+			}
+			case "too_small": {
+				const adj = issue.inclusive ? ">=" : ">";
+				const sizing = getSizing(issue.origin);
+				if (sizing) return `Pequeno demais: esperava que ${translateOriginWithArticle(issue.origin, "definite")} tivesse ${adj} ${issue.minimum.toString()} ${sizing.unit ?? "elementos"}`;
+				return `Pequeno demais: esperava que ${translateOriginWithArticle(issue.origin, "definite")} fosse ${adj} ${issue.minimum.toString()}`;
+			}
+			case "invalid_format": {
+				const _issue = issue;
+				if (_issue.format === "starts_with") return `Texto inválido: deve começar com "${_issue.prefix}"`;
+				if (_issue.format === "ends_with") return `Texto inválido: deve terminar com "${_issue.suffix}"`;
+				if (_issue.format === "includes") return `Texto inválido: deve incluir "${_issue.includes}"`;
+				if (_issue.format === "regex") return `Texto inválido: deve corresponder ao padrão ${_issue.pattern}`;
+				return `Formato d${FormatDictionary[_issue.format] ?? issue.format} inválido`;
+			}
+			case "not_multiple_of": return `Número inválido: deve ser múltiplo de ${issue.divisor}`;
+			case "unrecognized_keys": {
+				const plural = issue.keys.length > 1 ? "s" : "";
+				return `Chave${plural} inválida${plural}: ${joinValues(issue.keys, ", ")}`;
+			}
+			case "invalid_key": return `Entrada inválida n${translateOriginWithArticle(issue.origin, "definite")}`;
+			case "invalid_union":
+				if (issue.options && Array.isArray(issue.options) && issue.options.length > 0) return `Valor de discriminação inválido. Esperava ${issue.options.map((o) => `'${o}'`).join(" | ")}`;
+				return "Entrada inválida";
+			case "invalid_element": return `Entrada inválida n${translateOriginWithArticle(issue.origin, "definite")}`;
+			default: return `Entrada inválida`;
+		}
+	};
+};
+function pt_BR_default() {
 	return { localeError: error() };
 }
 //#endregion
@@ -5612,6 +5805,7 @@ function datetime(params) {
 }
 //#endregion
 //#region ../../packages/domain/src/schema/primitives.ts
+config(pt_BR_default());
 /**
 * Limites de tamanho. Protegem o app contra arquivos importados degenerados ou maliciosos
 * (o import é a principal fronteira de confiança do sistema).
@@ -5935,6 +6129,126 @@ function collectRefs(node, into = []) {
 	return into;
 }
 //#endregion
+//#region ../../packages/domain/src/dice/custom.ts
+var DieIdSchema = string().regex(/^[A-Za-z][A-Za-z0-9]{0,15}$/);
+var OutcomeLabelSchema = string().trim().min(1).max(40);
+/** Quantas faces um dado do sistema pode ter: as formas que existem em 3D. */
+var CUSTOM_DIE_FACES = [
+	4,
+	6,
+	8,
+	10,
+	12,
+	20
+];
+/**
+* Dado definido pelo sistema, com faces próprias: o dado Fate (−, −, 0, 0, +, +), os dados
+* de dualidade (Esperança e Medo, com cores diferentes)… Na notação, vale `d` + o ID, com a
+* quantidade na frente: `4dF`, `1dEsperanca`. Cada face tem o que aparece no dado (`label`)
+* e quanto soma (`value`).
+*/
+var CustomDieSchema = object({
+	/** Usado na notação (`4dF`). Letras e números, começando por letra; maiúsculas não importam. */
+	id: DieIdSchema,
+	name: LabelSchema,
+	faces: array(object({
+		label: string().trim().min(1).max(3),
+		value: number().int().min(-1e3).max(1e3)
+	})).refine((faces) => CUSTOM_DIE_FACES.includes(faces.length), { message: "O dado precisa ter 4, 6, 8, 10, 12 ou 20 faces" }),
+	/** Cor fixa do dado (#rrggbb), ex.: Esperança dourada e Medo roxo. Sem ela, a cor de quem rola. */
+	color: string().regex(/^#[0-9a-f]{6}$/i).optional(),
+	/**
+	* Comparação com outro dado rolado junto, como na dualidade: quando este sai maior que o
+	* `against`, a rolagem fica "com Esperança" (`win`); empatados, vale o `tie` ("crítico").
+	*/
+	duel: object({
+		against: DieIdSchema,
+		win: OutcomeLabelSchema,
+		tie: OutcomeLabelSchema.optional()
+	}).optional()
+});
+//#endregion
+//#region ../../packages/domain/src/cutscene/schema.ts
+/**
+* Imagens da cutscene: o Mestre as guarda na campanha e as mostra em tela cheia para a mesa.
+* Só formatos de bitmap (nunca SVG, que pode conter script) e com tamanho limitado: a imagem
+* vai aos jogadores em partes pela conexão direta.
+*/
+var IMAGE_MIMES = [
+	"image/webp",
+	"image/jpeg",
+	"image/png"
+];
+/** Tamanho máximo de uma imagem guardada (já reduzida). */
+var MAX_IMAGE_BYTES = 2097152;
+Math.ceil(MAX_IMAGE_BYTES / 262144);
+/** SHA-256 em hexadecimal: identifica a imagem pelo conteúdo. */
+var ImageHashSchema = string().regex(/^[0-9a-f]{64}$/);
+object({
+	hash: ImageHashSchema,
+	mime: _enum(IMAGE_MIMES),
+	size: number().int().min(1).max(MAX_IMAGE_BYTES),
+	width: number().int().min(1).max(1e4),
+	height: number().int().min(1).max(1e4),
+	title: string().trim().max(100),
+	caption: string().max(500)
+}).extend({
+	id: IdSchema,
+	/** `galeria`: do Mestre; `recebida`: guardada pelo jogador ao ver a cutscene. */
+	origin: _enum(["galeria", "recebida"]),
+	createdAt: TimestampSchema
+});
+/**
+* Confere o tipo real pelos primeiros bytes (não pelo nome do arquivo nem pelo que o outro
+* lado declara). `null` se não for PNG, JPEG nem WebP.
+*/
+function sniffImageMime(bytes) {
+	const at = (i) => bytes[i] ?? -1;
+	if (at(0) === 137 && at(1) === 80 && at(2) === 78 && at(3) === 71) return "image/png";
+	if (at(0) === 255 && at(1) === 216 && at(2) === 255) return "image/jpeg";
+	const riff = at(0) === 82 && at(1) === 73 && at(2) === 70 && at(3) === 70;
+	const webp = at(8) === 87 && at(9) === 69 && at(10) === 66 && at(11) === 80;
+	return riff && webp ? "image/webp" : null;
+}
+//#endregion
+//#region ../../packages/domain/src/image/embedded.ts
+var DATA_URL = /^data:(image\/(?:webp|jpeg|png));base64,([A-Za-z0-9+/]+={0,2})$/;
+var ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+/** Os primeiros 12 bytes de um base64 (16 caracteres), sem decodificar o resto. */
+function headBytes(base64) {
+	const bytes = [];
+	for (let i = 0; i + 4 <= Math.min(16, base64.length); i += 4) {
+		const [a, b, c, d] = [...base64.slice(i, i + 4)].map((char) => ALPHABET.indexOf(char));
+		if (a === void 0 || b === void 0 || c === void 0 || d === void 0) break;
+		if (a < 0 || b < 0) break;
+		bytes.push(a << 2 | b >> 4);
+		if (c >= 0) bytes.push((b & 15) << 4 | c >> 2);
+		if (c >= 0 && d >= 0) bytes.push((c & 3) << 6 | d);
+	}
+	return Uint8Array.from(bytes);
+}
+/**
+* Imagem embutida num registro (data URL), como o retrato da ficha e a capa da campanha.
+* Vem também de outros participantes e de arquivos importados: só PNG, JPEG ou WebP (nunca
+* SVG), e o tipo declarado precisa bater com os primeiros bytes.
+*/
+function embeddedImageSchema(limits) {
+	return object({
+		src: string().max(limits.maxChars).refine((src) => {
+			const match = DATA_URL.exec(src);
+			if (!match?.[1] || !match[2]) return false;
+			return sniffImageMime(headBytes(match[2])) === match[1];
+		}, "Imagem inválida"),
+		width: number().int().min(1).max(limits.maxSide),
+		height: number().int().min(1).max(limits.maxSide)
+	});
+}
+/** Ícone do sistema, embutido no arquivo dele (aparece nas listas de sistemas e fichas). */
+var SystemIconSchema = embeddedImageSchema({
+	maxChars: 4e4,
+	maxSide: 128
+});
+//#endregion
 //#region ../../packages/domain/src/template/schema.ts
 var FormulaSourceSchema = string().max(500);
 var fieldBase = {
@@ -6037,7 +6351,15 @@ var FieldDefSchema = discriminatedUnion("type", [
 		...fieldBase,
 		type: literal("list"),
 		itemFields: array(ListItemFieldSchema).min(1).max(LIMITS.listItemFields),
-		maxItems: number().int().min(1).max(LIMITS.listItems).optional()
+		maxItems: number().int().min(1).max(LIMITS.listItems).optional(),
+		/**
+		* Lista de ataques: o campo de número que é o bônus de ataque e, opcional, o de dados que é
+		* o dano. Com isso, cada item ganha "Atacar" (o dado dos testes + o bônus) e "Ataque e dano".
+		*/
+		attack: object({
+			bonus: IdSchema,
+			damage: IdSchema.optional()
+		}).optional()
 	})
 ]);
 /** Tipos cujo valor pode ser usado em fórmulas. */
@@ -6109,12 +6431,21 @@ var SystemTemplateSchema = object({
 	* em sistemas de dados de dualidade, "3d6" em outros…
 	*/
 	checkDice: string().max(LIMITS.label).optional(),
+	/** Dados com faces próprias (ex.: o dado Fate, `4dF`). Valem nas rolagens deste sistema. */
+	dice: array(CustomDieSchema).max(12).optional(),
 	/**
 	* Campo numérico que é o modificador de iniciativa (ex.: "Iniciativa" no D&D, "Percepção"
 	* no Lendas d20). Com ele, o jogador rola a iniciativa pela ficha (`checkDice` + o valor) e
 	* o resultado entra na ordem de turno. Sem ele, o Mestre digita as iniciativas.
 	*/
 	initiative: IdSchema.optional(),
+	/**
+	* Aba da ficha em que aparece a seção "Bônus e efeitos" (itens, maldições, bênçãos), no fim
+	* dela. Sem isso, os bônus ficam num botão no topo da ficha.
+	*/
+	bonusTab: string().trim().min(1).max(40).optional(),
+	/** Ícone do sistema (imagem pequena, embutida), nas listas de sistemas, fichas e campanhas. */
+	icon: SystemIconSchema.optional(),
 	/** Versão mínima do app capaz de abrir este template. */
 	minAppVersion: SemVerSchema.optional(),
 	fields: array(FieldDefSchema).min(1).max(LIMITS.fields),
@@ -6139,6 +6470,7 @@ var TemplateRefSchema = object({
 * Notação de dados: termos somados ou subtraídos.
 *
 *   1d20+5      2d6 + 1d4 - 1      4d6kh3 (mantém os 3 maiores)      2d20kl1 (o menor)
+*   4dF         1dEsperanca+1dMedo (dados do sistema, ver `CustomDie`)
 *
 * Sem `eval` e com limites (quantidade de dados, faces, tamanho), porque a expressão vem de
 * fichas e sistemas de terceiros.
@@ -6152,8 +6484,23 @@ var DICE_LIMITS = {
 	constant: 1e6
 };
 var TERM = /^(\d*)d(\d+)(?:(kh|kl)(\d+))?$|^(\d+)$/;
-/** Lê uma expressão de dados ("1d20+5"). Espaços são ignorados; "D" vale como "d". */
-function parseDice(source) {
+var CUSTOM_TERM = /^(\d*)d([a-z][a-z0-9]*)$/;
+/** Separa "fkh2" em dado "f" e "kh2", conferindo que o dado existe. */
+function customTerm(text, dice) {
+	const exact = dice.get(text);
+	if (exact) return { die: exact };
+	const split = /^(.+?)(kh|kl)(\d+)$/.exec(text);
+	const die = split && dice.get(split[1]);
+	return die && split ? {
+		die,
+		keep: [split[2], split[3]]
+	} : null;
+}
+/**
+* Lê uma expressão de dados ("1d20+5"). Espaços são ignorados; "D" vale como "d".
+* `custom`: os dados do sistema (`4dF`), se houver.
+*/
+function parseDice(source, custom = []) {
 	const text = source.replace(/\s+/g, "").toLowerCase();
 	if (text === "") return err({
 		code: "expressao-vazia",
@@ -6179,6 +6526,39 @@ function parseDice(source) {
 		const sign = part.startsWith("-") ? -1 : 1;
 		const body = part.replace(/^[+-]/, "");
 		const match = TERM.exec(body);
+		const customMatch = match ? null : CUSTOM_TERM.exec(body);
+		if (customMatch) {
+			const byId = new Map(custom.map((die) => [die.id.toLowerCase(), die]));
+			const found = customTerm(customMatch[2], byId);
+			if (!found) return err({
+				code: "expressao-invalida",
+				message: `"d${customMatch[2]}" não é um dado deste sistema`
+			});
+			const count = customMatch[1] === "" ? 1 : Number(customMatch[1]);
+			if (count < 1) return invalid;
+			totalDice += count;
+			if (totalDice > DICE_LIMITS.dice) return err({
+				code: "expressao-grande-demais",
+				message: `Mais de ${DICE_LIMITS.dice} dados`
+			});
+			const term = {
+				kind: "dados",
+				sign,
+				count,
+				sides: found.die.faces.length,
+				custom: found.die
+			};
+			if (found.keep) {
+				const keep = Number(found.keep[1]);
+				if (keep < 1 || keep > count) return invalid;
+				term.keep = {
+					mode: found.keep[0] === "kh" ? "maiores" : "menores",
+					count: keep
+				};
+			}
+			terms.push(term);
+			continue;
+		}
 		if (!match) return invalid;
 		if (match[5] !== void 0) {
 			const value = Number(match[5]);
@@ -6219,10 +6599,14 @@ function parseDice(source) {
 /** Texto canônico da expressão: "1d20 + 5", "4d6kh3 - 1". */
 function printDice(expression) {
 	return expression.map((term, index) => {
-		const body = term.kind === "constante" ? String(term.value) : `${term.count}d${term.sides}${term.keep ? `${term.keep.mode === "maiores" ? "kh" : "kl"}${term.keep.count}` : ""}`;
+		const body = term.kind === "constante" ? String(term.value) : `${term.count}d${term.custom ? term.custom.id : term.sides}${term.keep ? `${term.keep.mode === "maiores" ? "kh" : "kl"}${term.keep.count}` : ""}`;
 		if (index === 0) return term.sign < 0 ? `-${body}` : body;
 		return `${term.sign < 0 ? "-" : "+"} ${body}`;
 	}).join(" ");
+}
+/** Quanto soma a face sorteada: ela mesma, ou o valor dela num dado do sistema. */
+function faceValue(term, face) {
+	return term.custom ? term.custom.faces[face - 1]?.value ?? 0 : face;
 }
 //#endregion
 //#region ../../packages/domain/src/graph/topological-sort.ts
@@ -6439,6 +6823,21 @@ function compileTemplate(template) {
 				index,
 				"itemFields"
 			], issues);
+			if (field.attack) {
+				const typeOf = (id) => field.itemFields.find((item) => item.id === id)?.type;
+				if (typeOf(field.attack.bonus) !== "number") issues.push(issue$1("ataque-invalido", [
+					"fields",
+					index,
+					"attack",
+					"bonus"
+				], "O bônus de ataque precisa ser um campo de número do item"));
+				if (field.attack.damage !== void 0 && typeOf(field.attack.damage) !== "dice") issues.push(issue$1("ataque-invalido", [
+					"fields",
+					index,
+					"attack",
+					"damage"
+				], "O dano precisa ser um campo de dados do item"));
+			}
 			field.itemFields.forEach((item, itemIndex) => validateFieldDefaults(item, [
 				"fields",
 				index,
@@ -6502,8 +6901,28 @@ function compileTemplate(template) {
 		const cycle = order.error.map((node) => `@${node}`).join(" → ");
 		issues.push(issue$1("dependencia-circular", ["fields"], `Dependência circular: ${cycle}`));
 	}
+	const ids = /* @__PURE__ */ new Set();
+	template.dice?.forEach((die, index) => {
+		const id = die.id.toLowerCase();
+		if (ids.has(id)) issues.push(issue$1("dado-repetido", [
+			"dice",
+			index,
+			"id"
+		], `Dado "d${die.id}" repetido`));
+		ids.add(id);
+	});
+	template.dice?.forEach((die, index) => {
+		if (!die.duel) return;
+		const rival = die.duel.against.toLowerCase();
+		if (rival === die.id.toLowerCase() || !ids.has(rival)) issues.push(issue$1("dado-sem-rival", [
+			"dice",
+			index,
+			"duel",
+			"against"
+		], `O dado "d${die.id}" compara com "d${die.duel.against}", que não é outro dado do sistema`));
+	});
 	if (template.checkDice !== void 0) {
-		const dice = parseDice(template.checkDice);
+		const dice = parseDice(template.checkDice, template.dice);
 		if (!dice.ok) issues.push(issue$1("dado-de-teste-invalido", ["checkDice"], dice.error.message));
 	}
 	if (template.initiative !== void 0) {
@@ -6553,6 +6972,31 @@ function validateTemplate$1(json) {
 	})));
 	return compileTemplate(parsed.data);
 }
+/**
+* Bônus (ou penalidade) de um item, maldição ou bênção: soma um valor a um ou mais campos da
+* ficha enquanto estiver ativo. Vale para campos de número (ex.: Força) e calculados (ex.:
+* bônus de proficiência, Atletismo); quem depende deles nas fórmulas acompanha.
+*/
+var BonusSchema = object({
+	id: IdSchema,
+	name: LabelSchema,
+	kind: _enum([
+		"item",
+		"maldicao",
+		"bencao",
+		"outro"
+	]),
+	active: boolean(),
+	targets: array(object({
+		fieldId: IdSchema,
+		value: number().int().min(-999).max(999)
+	})).min(1).max(10)
+});
+/** Retrato do personagem, embutido na ficha. */
+var PortraitSchema = embeddedImageSchema({
+	maxChars: 12e4,
+	maxSide: 384
+});
 //#endregion
 //#region ../../packages/domain/src/sheet/schema.ts
 /** Valor de um campo simples (também usado dentro de itens de lista). */
@@ -6583,6 +7027,10 @@ var CharacterSheetSchema = object({
 	/** Dispositivo/usuário local dono da ficha (não há contas). */
 	ownerId: IdSchema,
 	templateRef: TemplateRefSchema,
+	/** Retrato do personagem (opcional). Vai junto com a ficha para o Mestre e na exportação. */
+	portrait: PortraitSchema.optional(),
+	/** Bônus de itens, maldições e bênçãos (ver `BonusSchema`). */
+	bonuses: array(BonusSchema).max(50).optional(),
 	/** Valores indexados pelo ID estável do campo. Campos calculados nunca aparecem aqui. */
 	values: record(IdSchema, FieldValueSchema),
 	/**
@@ -6603,8 +7051,11 @@ function compareVersions(a, b) {
 	for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
 	return 0;
 }
-//#endregion
-//#region ../../packages/domain/src/campaign/schema.ts
+/** Capa da campanha, escolhida pelo Mestre e enviada aos jogadores na sessão. */
+var CoverSchema = embeddedImageSchema({
+	maxChars: 3e5,
+	maxSide: 1200
+});
 /**
 * Segredo da sala: 128 bits aleatórios em base64url (22 caracteres). Cifra a sessão e só
 * viaja no fragmento (`#`) do link de convite, que os navegadores nunca enviam a servidores.
@@ -6634,6 +7085,8 @@ object({
 	templateRef: TemplateRefSchema,
 	/** Nome do sistema, para exibir mesmo antes de ele estar instalado no dispositivo. */
 	templateName: LabelSchema,
+	/** Capa da campanha (opcional). No jogador, a recebida do Mestre na última sessão. */
+	cover: CoverSchema.optional(),
 	secret: CampaignSecretSchema,
 	members: array(CampaignMemberSchema).max(LIMITS.members),
 	createdAt: TimestampSchema,
@@ -6645,7 +7098,8 @@ object({
 	name: LabelSchema,
 	gmId: IdSchema,
 	gmName: LabelSchema,
-	gmKey: GmKeySchema.optional(),
+	/** Chave pública do Mestre: o jogador só aceita como Mestre quem provar que tem a privada. */
+	gmKey: GmKeySchema,
 	templateRef: TemplateRefSchema,
 	templateName: LabelSchema,
 	secret: CampaignSecretSchema
@@ -6837,7 +7291,9 @@ var TermResultSchema = discriminatedUnion("kind", [object({
 		value: Int(1, DICE_LIMITS.sides),
 		dropped: boolean()
 	})).max(DICE_LIMITS.dice),
-	subtotal: number().int()
+	subtotal: number().int(),
+	/** Dado do sistema: as faces vão junto, para conferir sem ter o sistema. */
+	custom: CustomDieSchema.optional()
 }), object({
 	kind: literal("constante"),
 	sign: SignSchema,
@@ -6863,7 +7319,14 @@ object({
 	* Para que serve a rolagem, além de entrar no registro. `iniciativa`: o Mestre usa o
 	* total como a iniciativa de quem rolou na ordem de turno.
 	*/
-	purpose: literal("iniciativa").optional()
+	purpose: literal("iniciativa").optional(),
+	/** Cor dos dados 3D de quem rolou (#rrggbb), para a mesa reconhecer de quem é a rolagem. */
+	diceColor: string().regex(/^#[0-9a-f]{6}$/i).optional(),
+	/**
+	* Acabamento dos dados 3D de quem rolou (`DICE_FINISHES`). Texto livre de propósito: um
+	* acabamento novo, de uma versão mais nova, não recusa a rolagem; aqui ele vira liso.
+	*/
+	diceFinish: string().regex(/^[a-z]{1,20}$/).optional()
 });
 /** Confere que o resultado é a soma dos dados declarados (e só deles). */
 function isConsistent(result) {
@@ -6873,11 +7336,12 @@ function isConsistent(result) {
 			if (term.subtotal !== term.sign * term.value) return false;
 		} else {
 			if (term.results.length !== term.count) return false;
+			if (term.custom && term.custom.faces.length !== term.sides) return false;
 			if (term.results.some((die) => die.value > term.sides)) return false;
 			const dropped = term.results.filter((die) => die.dropped).length;
 			const keep = term.keep?.count ?? term.count;
 			if (keep > term.count || dropped !== term.count - keep) return false;
-			const sum = term.results.reduce((s, die) => s + (die.dropped ? 0 : die.value), 0);
+			const sum = term.results.reduce((s, die) => s + (die.dropped ? 0 : faceValue(term, die.value)), 0);
 			if (term.subtotal !== term.sign * sum) return false;
 		}
 		total += term.subtotal;
@@ -6891,7 +7355,8 @@ function isConsistent(result) {
 		sign: term.sign,
 		count: term.count,
 		sides: term.sides,
-		...term.keep && { keep: term.keep }
+		...term.keep && { keep: term.keep },
+		...term.custom && { custom: term.custom }
 	});
 	return total === result.total && printDice(expression) === result.expression;
 }
@@ -6919,6 +7384,2382 @@ object({
 	activeId: IdSchema.nullable(),
 	combatants: array(CombatantSchema.omit({ hidden: true })).max(40)
 }).refine((t) => uniqueIds(t.combatants), "Participante repetido").refine((t) => t.activeId === null || t.combatants.some((c) => c.id === t.activeId), "Turno de quem não está no combate");
+object({
+	id: IdSchema,
+	title: LabelSchema,
+	text: string().max(2e4),
+	shared: boolean(),
+	createdAt: TimestampSchema,
+	updatedAt: TimestampSchema
+});
+object({
+	id: IdSchema,
+	at: TimestampSchema,
+	authorId: IdSchema,
+	authorName: LabelSchema,
+	kind: _enum([
+		"fala",
+		"personagem",
+		"acao"
+	]),
+	/** Quem fala: obrigatório em `personagem`, opcional em `acao`, ausente em `fala`. */
+	character: LabelSchema.optional(),
+	text: string().trim().min(1).max(1e3),
+	/** Sussurro: o ID de quem recebe, e o nome (para mostrar). */
+	to: IdSchema.optional(),
+	toName: LabelSchema.optional()
+}).refine((message) => message.kind === "acao" || message.kind === "personagem" === (message.character !== void 0), {
+	message: "Fala de personagem precisa do nome do personagem",
+	path: ["character"]
+}).refine((message) => message.to === void 0 === (message.toName === void 0), {
+	message: "Sussurro precisa de destinatário e nome",
+	path: ["to"]
+}).refine((message) => message.to !== message.authorId, {
+	message: "Sussurro para si mesmo",
+	path: ["to"]
+});
+var DICE_PART = String.raw`(?:\d*d\d+(?:k[hl]\d+)?|\d+d[a-z][a-z0-9]*|\d+)`;
+new RegExp(String.raw`^[+-]?(?:${DICE_PART}(?:[+-]${DICE_PART})*[+-]?)?$`, "i");
+object({
+	enabled: boolean(),
+	/** De 0 a 1. */
+	volume: number().min(0).max(1),
+	/** Volume da música da mesa (de 0 a 1), à parte dos avisos. */
+	musicVolume: number().min(0).max(1).optional(),
+	/** Baixar e tocar a música da mesa neste aparelho (desligar economiza dados no 4G). */
+	downloadMusic: boolean().optional(),
+	/** Mostrar as rolagens com dados 3D (ligado quando nunca escolhido). */
+	dice3d: boolean().optional(),
+	/** Os dados 3D giram ao cair (ligado quando nunca escolhido); desligado, aparecem parados. */
+	diceMotion: boolean().optional(),
+	/** Cor dos dados 3D neste aparelho (#rrggbb). */
+	diceColor: string().regex(/^#[0-9a-f]{6}$/i).optional(),
+	/** Acabamento dos dados 3D neste aparelho (liso quando nunca escolhido). */
+	diceFinish: _enum([
+		"liso",
+		"marmore",
+		"madeira",
+		"pedra",
+		"metal"
+	]).optional()
+});
+/** Uma trilha: identificada pelo conteúdo (SHA-256), como as imagens da cutscene. */
+var TrackInfoSchema = object({
+	hash: ImageHashSchema,
+	mime: _enum(["audio/mpeg", "audio/ogg"]),
+	size: number().int().min(1).max(8388608),
+	title: string().trim().min(1).max(100)
+});
+TrackInfoSchema.extend({
+	id: IdSchema,
+	origin: _enum(["biblioteca", "recebida"]),
+	createdAt: TimestampSchema
+});
+object({
+	track: TrackInfoSchema,
+	playing: boolean(),
+	loop: boolean(),
+	position: number().min(0).max(86400)
+});
+var lendas_d20_orc_default = {
+	id: "lendas-d20-orc",
+	version: "1.5.0",
+	name: "Lendas d20 (ORC)",
+	description: "Ficha para fantasia heroica d20 com graus de proficiência (destreinado a lendário), atributos como modificadores e três ações por turno. ORC Notice: This product is licensed under the ORC License held in the Library of Congress at TX 9-307-067 and available online at various locations including www.azoralaw.com/orclicense, www.gencon.com/orclicense and others. All warranties are disclaimed as set forth therein. Attribution: This product is based on the following Licensed Material: Player Core © 2023 Paizo Inc., Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter. Reserved Material: nomes, cenário e marcas da Paizo não são usados. Expressed Material: esta ficha (layout e textos) não é material licenciado.",
+	author: "Tabularium",
+	license: "ORC",
+	language: "pt-BR",
+	tags: [
+		"fantasia",
+		"d20",
+		"orc"
+	],
+	source: "builtin",
+	initiative: "percepcao",
+	bonusTab: "Combate",
+	fields: [
+		{
+			"id": "nome",
+			"key": "nome",
+			"label": "Nome do personagem",
+			"type": "text"
+		},
+		{
+			"id": "jogador",
+			"key": "jogador",
+			"label": "Jogador",
+			"type": "text"
+		},
+		{
+			"id": "nivel",
+			"key": "nivel",
+			"label": "Nível",
+			"type": "number",
+			"default": 1,
+			"min": 1,
+			"max": 20,
+			"integer": true
+		},
+		{
+			"id": "ancestralidade",
+			"key": "ancestralidade",
+			"label": "Ancestralidade",
+			"type": "text"
+		},
+		{
+			"id": "heranca",
+			"key": "heranca",
+			"label": "Herança",
+			"type": "text"
+		},
+		{
+			"id": "formacao",
+			"key": "formacao",
+			"label": "Formação",
+			"type": "text"
+		},
+		{
+			"id": "classe",
+			"key": "classe",
+			"label": "Classe",
+			"type": "text"
+		},
+		{
+			"id": "tamanho",
+			"key": "tamanho",
+			"label": "Tamanho",
+			"type": "select",
+			"options": [
+				{
+					"value": "minusculo",
+					"label": "Minúsculo"
+				},
+				{
+					"value": "pequeno",
+					"label": "Pequeno"
+				},
+				{
+					"value": "medio",
+					"label": "Médio"
+				},
+				{
+					"value": "grande",
+					"label": "Grande"
+				},
+				{
+					"value": "enorme",
+					"label": "Enorme"
+				},
+				{
+					"value": "imenso",
+					"label": "Imenso"
+				}
+			],
+			"default": "medio"
+		},
+		{
+			"id": "deslocamento",
+			"key": "deslocamento",
+			"label": "Deslocamento (m)",
+			"type": "number",
+			"default": 7.5,
+			"min": 0
+		},
+		{
+			"id": "px",
+			"key": "px",
+			"label": "Pontos de experiência",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"max": 999,
+			"integer": true,
+			"description": "Ao chegar a 1000, suba de nível e subtraia 1000."
+		},
+		{
+			"id": "heroismo",
+			"key": "heroismo",
+			"label": "Pontos de Heroísmo",
+			"type": "resource",
+			"default": 1,
+			"max": "3",
+			"description": "Gaste para rolar de novo ou para evitar a morte.",
+			"display": "marcadores"
+		},
+		{
+			"id": "idiomas",
+			"key": "idiomas",
+			"label": "Idiomas",
+			"type": "text"
+		},
+		{
+			"id": "tracos",
+			"key": "tracos",
+			"label": "Traços",
+			"type": "text"
+		},
+		{
+			"id": "for",
+			"key": "for",
+			"label": "Força",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "des",
+			"key": "des",
+			"label": "Destreza",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "con",
+			"key": "con",
+			"label": "Constituição",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "int",
+			"key": "int",
+			"label": "Inteligência",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "sab",
+			"key": "sab",
+			"label": "Sabedoria",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "car",
+			"key": "car",
+			"label": "Carisma",
+			"type": "number",
+			"default": 0,
+			"min": -5,
+			"max": 10,
+			"integer": true,
+			"description": "Modificador de atributo (o Remaster não usa valores)."
+		},
+		{
+			"id": "atributo_chave",
+			"key": "atributo_chave",
+			"label": "Atributo-chave da classe",
+			"type": "select",
+			"options": [
+				{
+					"value": "for",
+					"label": "Força"
+				},
+				{
+					"value": "des",
+					"label": "Destreza"
+				},
+				{
+					"value": "con",
+					"label": "Constituição"
+				},
+				{
+					"value": "int",
+					"label": "Inteligência"
+				},
+				{
+					"value": "sab",
+					"label": "Sabedoria"
+				},
+				{
+					"value": "car",
+					"label": "Carisma"
+				}
+			],
+			"default": "for"
+		},
+		{
+			"id": "mod_chave",
+			"key": "mod_chave",
+			"label": "Mod. do atributo-chave",
+			"type": "computed",
+			"formula": "is(@atributo_chave, \"for\") * @for + is(@atributo_chave, \"des\") * @des + is(@atributo_chave, \"con\") * @con + is(@atributo_chave, \"int\") * @int + is(@atributo_chave, \"sab\") * @sab + is(@atributo_chave, \"car\") * @car",
+			"signed": true
+		},
+		{
+			"id": "prof_fortitude",
+			"key": "prof_fortitude",
+			"label": "Proficiência em Fortitude",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "fortitude",
+			"key": "fortitude",
+			"label": "Fortitude (Con)",
+			"type": "computed",
+			"formula": "@con + if(@prof_fortitude > 0, @prof_fortitude + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_reflexos",
+			"key": "prof_reflexos",
+			"label": "Proficiência em Reflexos",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "reflexos",
+			"key": "reflexos",
+			"label": "Reflexos (Des)",
+			"type": "computed",
+			"formula": "@des + if(@prof_reflexos > 0, @prof_reflexos + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_vontade",
+			"key": "prof_vontade",
+			"label": "Proficiência em Vontade",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "vontade",
+			"key": "vontade",
+			"label": "Vontade (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_vontade > 0, @prof_vontade + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_percepcao",
+			"key": "prof_percepcao",
+			"label": "Proficiência em Percepção",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "percepcao",
+			"key": "percepcao",
+			"label": "Percepção (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_percepcao > 0, @prof_percepcao + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "ca",
+			"key": "ca",
+			"label": "Classe de Armadura",
+			"type": "computed",
+			"formula": "10 + min(@des, @limite_des) + if(@prof_armadura > 0, @prof_armadura + @nivel, 0) + @bonus_armadura + @escudo_erguido * @escudo_ca",
+			"description": "10 + Destreza (até o limite da armadura) + proficiência + armadura + escudo erguido + efeitos."
+		},
+		{
+			"id": "prof_armadura",
+			"key": "prof_armadura",
+			"label": "Proficiência na armadura",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "bonus_armadura",
+			"key": "bonus_armadura",
+			"label": "Bônus de item da armadura",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "limite_des",
+			"key": "limite_des",
+			"label": "Limite de Destreza",
+			"type": "number",
+			"default": 10,
+			"min": 0,
+			"integer": true,
+			"description": "Da armadura vestida. Sem armadura, deixe alto."
+		},
+		{
+			"id": "pv",
+			"key": "pv",
+			"label": "Pontos de Vida",
+			"type": "resource",
+			"default": 10,
+			"max": "@pv_ancestralidade + (@pv_classe + @con) * @nivel"
+		},
+		{
+			"id": "pv_temp",
+			"key": "pv_temp",
+			"label": "PV temporários",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "pv_ancestralidade",
+			"key": "pv_ancestralidade",
+			"label": "PV da ancestralidade",
+			"type": "number",
+			"default": 8,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "pv_classe",
+			"key": "pv_classe",
+			"label": "PV da classe por nível",
+			"type": "number",
+			"default": 8,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "moribundo",
+			"key": "moribundo",
+			"label": "Moribundo",
+			"type": "resource",
+			"default": 0,
+			"max": "4 - @ferido",
+			"description": "Chegar ao máximo é a morte. Ferido diminui o limite.",
+			"display": "marcadores"
+		},
+		{
+			"id": "ferido",
+			"key": "ferido",
+			"label": "Ferido",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"max": 3,
+			"integer": true,
+			"display": "marcadores"
+		},
+		{
+			"id": "prof_classe",
+			"key": "prof_classe",
+			"label": "Proficiência na CD de classe",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "treinado"
+		},
+		{
+			"id": "cd_classe",
+			"key": "cd_classe",
+			"label": "CD de classe",
+			"type": "computed",
+			"formula": "10 + @mod_chave + if(@prof_classe > 0, @prof_classe + @nivel, 0)"
+		},
+		{
+			"id": "resistencias_dano",
+			"key": "resistencias_dano",
+			"label": "Resistências, fraquezas e imunidades",
+			"type": "text"
+		},
+		{
+			"id": "condicoes",
+			"key": "condicoes",
+			"label": "Condições",
+			"type": "select",
+			"multiple": true,
+			"options": [
+				{
+					"value": "agarrado",
+					"label": "Agarrado"
+				},
+				{
+					"value": "amedrontado",
+					"label": "Amedrontado"
+				},
+				{
+					"value": "atordoado",
+					"label": "Atordoado"
+				},
+				{
+					"value": "caido",
+					"label": "Caído"
+				},
+				{
+					"value": "cego",
+					"label": "Cego"
+				},
+				{
+					"value": "confuso",
+					"label": "Confuso"
+				},
+				{
+					"value": "desprevenido",
+					"label": "Desprevenido"
+				},
+				{
+					"value": "enfraquecido",
+					"label": "Enfraquecido"
+				},
+				{
+					"value": "enjoado",
+					"label": "Enjoado"
+				},
+				{
+					"value": "escondido",
+					"label": "Escondido"
+				},
+				{
+					"value": "fatigado",
+					"label": "Fatigado"
+				},
+				{
+					"value": "imobilizado",
+					"label": "Imobilizado"
+				},
+				{
+					"value": "inconsciente",
+					"label": "Inconsciente"
+				},
+				{
+					"value": "lento",
+					"label": "Lento"
+				},
+				{
+					"value": "ofuscado",
+					"label": "Ofuscado"
+				},
+				{
+					"value": "paralisado",
+					"label": "Paralisado"
+				},
+				{
+					"value": "petrificado",
+					"label": "Petrificado"
+				},
+				{
+					"value": "rapido",
+					"label": "Rápido"
+				},
+				{
+					"value": "surdo",
+					"label": "Surdo"
+				}
+			]
+		},
+		{
+			"id": "escudo_erguido",
+			"key": "escudo_erguido",
+			"label": "Escudo erguido",
+			"type": "boolean"
+		},
+		{
+			"id": "escudo_ca",
+			"key": "escudo_ca",
+			"label": "Bônus de CA do escudo",
+			"type": "number",
+			"default": 2,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "escudo_dureza",
+			"key": "escudo_dureza",
+			"label": "Dureza do escudo",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "escudo_pv",
+			"key": "escudo_pv",
+			"label": "PV do escudo",
+			"type": "resource",
+			"default": 0
+		},
+		{
+			"id": "prof_acrobatismo",
+			"key": "prof_acrobatismo",
+			"label": "Proficiência em Acrobatismo",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "acrobatismo",
+			"key": "acrobatismo",
+			"label": "Acrobatismo (Des)",
+			"type": "computed",
+			"formula": "@des + if(@prof_acrobatismo > 0, @prof_acrobatismo + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_arcanismo",
+			"key": "prof_arcanismo",
+			"label": "Proficiência em Arcanismo",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "arcanismo",
+			"key": "arcanismo",
+			"label": "Arcanismo (Int)",
+			"type": "computed",
+			"formula": "@int + if(@prof_arcanismo > 0, @prof_arcanismo + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_atletismo",
+			"key": "prof_atletismo",
+			"label": "Proficiência em Atletismo",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "atletismo",
+			"key": "atletismo",
+			"label": "Atletismo (For)",
+			"type": "computed",
+			"formula": "@for + if(@prof_atletismo > 0, @prof_atletismo + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_diplomacia",
+			"key": "prof_diplomacia",
+			"label": "Proficiência em Diplomacia",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "diplomacia",
+			"key": "diplomacia",
+			"label": "Diplomacia (Car)",
+			"type": "computed",
+			"formula": "@car + if(@prof_diplomacia > 0, @prof_diplomacia + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_enganacao",
+			"key": "prof_enganacao",
+			"label": "Proficiência em Enganação",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "enganacao",
+			"key": "enganacao",
+			"label": "Enganação (Car)",
+			"type": "computed",
+			"formula": "@car + if(@prof_enganacao > 0, @prof_enganacao + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_furtividade",
+			"key": "prof_furtividade",
+			"label": "Proficiência em Furtividade",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "furtividade",
+			"key": "furtividade",
+			"label": "Furtividade (Des)",
+			"type": "computed",
+			"formula": "@des + if(@prof_furtividade > 0, @prof_furtividade + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_intimidacao",
+			"key": "prof_intimidacao",
+			"label": "Proficiência em Intimidação",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "intimidacao",
+			"key": "intimidacao",
+			"label": "Intimidação (Car)",
+			"type": "computed",
+			"formula": "@car + if(@prof_intimidacao > 0, @prof_intimidacao + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_ladinagem",
+			"key": "prof_ladinagem",
+			"label": "Proficiência em Ladinagem",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "ladinagem",
+			"key": "ladinagem",
+			"label": "Ladinagem (Des)",
+			"type": "computed",
+			"formula": "@des + if(@prof_ladinagem > 0, @prof_ladinagem + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_manufatura",
+			"key": "prof_manufatura",
+			"label": "Proficiência em Manufatura",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "manufatura",
+			"key": "manufatura",
+			"label": "Manufatura (Int)",
+			"type": "computed",
+			"formula": "@int + if(@prof_manufatura > 0, @prof_manufatura + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_medicina",
+			"key": "prof_medicina",
+			"label": "Proficiência em Medicina",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "medicina",
+			"key": "medicina",
+			"label": "Medicina (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_medicina > 0, @prof_medicina + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_natureza",
+			"key": "prof_natureza",
+			"label": "Proficiência em Natureza",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "natureza",
+			"key": "natureza",
+			"label": "Natureza (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_natureza > 0, @prof_natureza + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_ocultismo",
+			"key": "prof_ocultismo",
+			"label": "Proficiência em Ocultismo",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "ocultismo",
+			"key": "ocultismo",
+			"label": "Ocultismo (Int)",
+			"type": "computed",
+			"formula": "@int + if(@prof_ocultismo > 0, @prof_ocultismo + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_performance",
+			"key": "prof_performance",
+			"label": "Proficiência em Performance",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "performance",
+			"key": "performance",
+			"label": "Performance (Car)",
+			"type": "computed",
+			"formula": "@car + if(@prof_performance > 0, @prof_performance + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_religiao",
+			"key": "prof_religiao",
+			"label": "Proficiência em Religião",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "religiao",
+			"key": "religiao",
+			"label": "Religião (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_religiao > 0, @prof_religiao + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_sobrevivencia",
+			"key": "prof_sobrevivencia",
+			"label": "Proficiência em Sobrevivência",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "sobrevivencia",
+			"key": "sobrevivencia",
+			"label": "Sobrevivência (Sab)",
+			"type": "computed",
+			"formula": "@sab + if(@prof_sobrevivencia > 0, @prof_sobrevivencia + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "prof_sociedade",
+			"key": "prof_sociedade",
+			"label": "Proficiência em Sociedade",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			],
+			"default": "destreinado"
+		},
+		{
+			"id": "sociedade",
+			"key": "sociedade",
+			"label": "Sociedade (Int)",
+			"type": "computed",
+			"formula": "@int + if(@prof_sociedade > 0, @prof_sociedade + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "saberes",
+			"key": "saberes",
+			"label": "Saberes",
+			"type": "list",
+			"itemFields": [
+				{
+					"id": "nome",
+					"key": "nome",
+					"label": "Saber",
+					"type": "text"
+				},
+				{
+					"id": "grau",
+					"key": "grau",
+					"label": "Grau",
+					"type": "select",
+					"options": [
+						{
+							"value": "destreinado",
+							"label": "Destreinado",
+							"number": 0
+						},
+						{
+							"value": "treinado",
+							"label": "Treinado",
+							"number": 2
+						},
+						{
+							"value": "especialista",
+							"label": "Especialista",
+							"number": 4
+						},
+						{
+							"value": "mestre",
+							"label": "Mestre",
+							"number": 6
+						},
+						{
+							"value": "lendario",
+							"label": "Lendário",
+							"number": 8
+						}
+					],
+					"default": "treinado"
+				},
+				{
+					"id": "bonus",
+					"key": "bonus",
+					"label": "Bônus total",
+					"type": "number",
+					"default": 0,
+					"integer": true
+				}
+			]
+		},
+		{
+			"id": "ataques",
+			"key": "ataques",
+			"label": "Golpes",
+			"type": "list",
+			"itemFields": [
+				{
+					"id": "nome",
+					"key": "nome",
+					"label": "Arma",
+					"type": "text"
+				},
+				{
+					"id": "bonus",
+					"key": "bonus",
+					"label": "Bônus de ataque",
+					"type": "number",
+					"default": 0,
+					"integer": true
+				},
+				{
+					"id": "dano",
+					"key": "dano",
+					"label": "Dano",
+					"type": "dice"
+				},
+				{
+					"id": "tipo",
+					"key": "tipo",
+					"label": "Tipo de dano",
+					"type": "text"
+				},
+				{
+					"id": "tracos",
+					"key": "tracos",
+					"label": "Traços",
+					"type": "text"
+				}
+			],
+			"attack": {
+				"bonus": "bonus",
+				"damage": "dano"
+			}
+		},
+		{
+			"id": "tradicao",
+			"key": "tradicao",
+			"label": "Tradição",
+			"type": "select",
+			"options": [
+				{
+					"value": "arcana",
+					"label": "Arcana"
+				},
+				{
+					"value": "divina",
+					"label": "Divina"
+				},
+				{
+					"value": "ocultista",
+					"label": "Ocultista"
+				},
+				{
+					"value": "primal",
+					"label": "Primal"
+				}
+			]
+		},
+		{
+			"id": "atributo_magia",
+			"key": "atributo_magia",
+			"label": "Atributo de magia",
+			"type": "select",
+			"options": [
+				{
+					"value": "int",
+					"label": "Inteligência"
+				},
+				{
+					"value": "sab",
+					"label": "Sabedoria"
+				},
+				{
+					"value": "car",
+					"label": "Carisma"
+				}
+			],
+			"default": "int"
+		},
+		{
+			"id": "mod_magia",
+			"key": "mod_magia",
+			"label": "Mod. de magia",
+			"type": "computed",
+			"formula": "is(@atributo_magia, \"int\") * @int + is(@atributo_magia, \"sab\") * @sab + is(@atributo_magia, \"car\") * @car",
+			"signed": true
+		},
+		{
+			"id": "prof_magia",
+			"key": "prof_magia",
+			"label": "Proficiência em magia",
+			"type": "select",
+			"options": [
+				{
+					"value": "destreinado",
+					"label": "Destreinado",
+					"number": 0
+				},
+				{
+					"value": "treinado",
+					"label": "Treinado",
+					"number": 2
+				},
+				{
+					"value": "especialista",
+					"label": "Especialista",
+					"number": 4
+				},
+				{
+					"value": "mestre",
+					"label": "Mestre",
+					"number": 6
+				},
+				{
+					"value": "lendario",
+					"label": "Lendário",
+					"number": 8
+				}
+			]
+		},
+		{
+			"id": "ataque_magia",
+			"key": "ataque_magia",
+			"label": "Ataque com magia",
+			"type": "computed",
+			"formula": "@mod_magia + if(@prof_magia > 0, @prof_magia + @nivel, 0)",
+			"signed": true
+		},
+		{
+			"id": "cd_magia",
+			"key": "cd_magia",
+			"label": "CD de magia",
+			"type": "computed",
+			"formula": "10 + @mod_magia + if(@prof_magia > 0, @prof_magia + @nivel, 0)"
+		},
+		{
+			"id": "foco",
+			"key": "foco",
+			"label": "Pontos de Foco",
+			"type": "resource",
+			"default": 0,
+			"max": "3",
+			"display": "marcadores"
+		},
+		{
+			"id": "magias",
+			"key": "magias",
+			"label": "Magias",
+			"type": "list",
+			"itemFields": [
+				{
+					"id": "nome",
+					"key": "nome",
+					"label": "Magia",
+					"type": "text"
+				},
+				{
+					"id": "nivel",
+					"key": "nivel",
+					"label": "Grau",
+					"type": "number",
+					"default": 1,
+					"min": 0,
+					"max": 10,
+					"integer": true,
+					"description": "0 para truques."
+				},
+				{
+					"id": "preparada",
+					"key": "preparada",
+					"label": "Preparada",
+					"type": "boolean"
+				},
+				{
+					"id": "acoes",
+					"key": "acoes",
+					"label": "Ações",
+					"type": "text"
+				},
+				{
+					"id": "descricao",
+					"key": "descricao",
+					"label": "Descrição",
+					"type": "longtext"
+				}
+			]
+		},
+		{
+			"id": "talentos",
+			"key": "talentos",
+			"label": "Talentos e habilidades",
+			"type": "list",
+			"itemFields": [
+				{
+					"id": "nome",
+					"key": "nome",
+					"label": "Talento",
+					"type": "text"
+				},
+				{
+					"id": "tipo",
+					"key": "tipo",
+					"label": "Tipo",
+					"type": "select",
+					"options": [
+						{
+							"value": "ancestralidade",
+							"label": "Ancestralidade"
+						},
+						{
+							"value": "classe",
+							"label": "Classe"
+						},
+						{
+							"value": "pericia",
+							"label": "Perícia"
+						},
+						{
+							"value": "geral",
+							"label": "Geral"
+						},
+						{
+							"value": "formacao",
+							"label": "Formação"
+						},
+						{
+							"value": "outro",
+							"label": "Outro"
+						}
+					]
+				},
+				{
+					"id": "nivel",
+					"key": "nivel",
+					"label": "Nível",
+					"type": "number",
+					"default": 1,
+					"min": 1,
+					"max": 20,
+					"integer": true
+				},
+				{
+					"id": "descricao",
+					"key": "descricao",
+					"label": "Descrição",
+					"type": "longtext"
+				}
+			]
+		},
+		{
+			"id": "equipamento",
+			"key": "equipamento",
+			"label": "Equipamento",
+			"type": "list",
+			"itemFields": [
+				{
+					"id": "nome",
+					"key": "nome",
+					"label": "Item",
+					"type": "text"
+				},
+				{
+					"id": "qtd",
+					"key": "qtd",
+					"label": "Qtd.",
+					"type": "number",
+					"default": 1,
+					"min": 0,
+					"integer": true
+				},
+				{
+					"id": "volume",
+					"key": "volume",
+					"label": "Volume",
+					"type": "number",
+					"default": 0,
+					"min": 0,
+					"description": "L (leve) conta 0,1."
+				},
+				{
+					"id": "investido",
+					"key": "investido",
+					"label": "Investido",
+					"type": "boolean"
+				},
+				{
+					"id": "descricao",
+					"key": "descricao",
+					"label": "Descrição",
+					"type": "longtext"
+				}
+			]
+		},
+		{
+			"id": "volume_total",
+			"key": "volume_total",
+			"label": "Volume carregado",
+			"type": "computed",
+			"formula": "floor(sum(@equipamento.volume * @equipamento.qtd))"
+		},
+		{
+			"id": "limite_volume",
+			"key": "limite_volume",
+			"label": "Limite de volume",
+			"type": "computed",
+			"formula": "5 + @for",
+			"description": "Acima disso, fica sobrecarregado."
+		},
+		{
+			"id": "investidos",
+			"key": "investidos",
+			"label": "Itens investidos",
+			"type": "computed",
+			"formula": "count(@equipamento.investido)",
+			"description": "Máximo de 10."
+		},
+		{
+			"id": "po",
+			"key": "po",
+			"label": "Peças de ouro",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "pp",
+			"key": "pp",
+			"label": "Peças de prata",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "pc",
+			"key": "pc",
+			"label": "Peças de cobre",
+			"type": "number",
+			"default": 0,
+			"min": 0,
+			"integer": true
+		},
+		{
+			"id": "personalidade",
+			"key": "personalidade",
+			"label": "Personalidade e crenças",
+			"type": "longtext"
+		},
+		{
+			"id": "anotacoes",
+			"key": "anotacoes",
+			"label": "Anotações",
+			"type": "longtext"
+		}
+	],
+	layouts: {
+		"full": [
+			{
+				"kind": "section",
+				"title": "Atributos",
+				"columns": 3,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "for"
+					},
+					{
+						"kind": "field",
+						"fieldId": "des"
+					},
+					{
+						"kind": "field",
+						"fieldId": "con"
+					},
+					{
+						"kind": "field",
+						"fieldId": "int"
+					},
+					{
+						"kind": "field",
+						"fieldId": "sab"
+					},
+					{
+						"kind": "field",
+						"fieldId": "car"
+					}
+				],
+				"tab": "Principal",
+				"display": "compacto"
+			},
+			{
+				"kind": "section",
+				"title": "Atributo-chave",
+				"columns": 2,
+				"children": [{
+					"kind": "field",
+					"fieldId": "atributo_chave"
+				}, {
+					"kind": "field",
+					"fieldId": "mod_chave"
+				}]
+			},
+			{
+				"kind": "section",
+				"title": "Defesas e Percepção",
+				"columns": 2,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "prof_fortitude"
+					},
+					{
+						"kind": "field",
+						"fieldId": "fortitude"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_reflexos"
+					},
+					{
+						"kind": "field",
+						"fieldId": "reflexos"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_vontade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "vontade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_percepcao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "percepcao"
+					}
+				],
+				"display": "linhas"
+			},
+			{
+				"kind": "section",
+				"title": "Perícias",
+				"columns": 2,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "prof_acrobatismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "acrobatismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_arcanismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "arcanismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_atletismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "atletismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_diplomacia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "diplomacia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_enganacao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "enganacao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_furtividade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "furtividade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_intimidacao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "intimidacao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_ladinagem"
+					},
+					{
+						"kind": "field",
+						"fieldId": "ladinagem"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_manufatura"
+					},
+					{
+						"kind": "field",
+						"fieldId": "manufatura"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_medicina"
+					},
+					{
+						"kind": "field",
+						"fieldId": "medicina"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_natureza"
+					},
+					{
+						"kind": "field",
+						"fieldId": "natureza"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_ocultismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "ocultismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_performance"
+					},
+					{
+						"kind": "field",
+						"fieldId": "performance"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_religiao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "religiao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_sobrevivencia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "sobrevivencia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_sociedade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "sociedade"
+					}
+				],
+				"display": "linhas"
+			},
+			{
+				"kind": "section",
+				"title": "Saberes",
+				"columns": 1,
+				"children": [{
+					"kind": "field",
+					"fieldId": "saberes"
+				}]
+			},
+			{
+				"kind": "section",
+				"title": "Combate",
+				"columns": 4,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "ca"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_armadura"
+					},
+					{
+						"kind": "field",
+						"fieldId": "bonus_armadura"
+					},
+					{
+						"kind": "field",
+						"fieldId": "limite_des"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pv"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pv_temp"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pv_ancestralidade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pv_classe"
+					},
+					{
+						"kind": "field",
+						"fieldId": "moribundo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "ferido"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_classe"
+					},
+					{
+						"kind": "field",
+						"fieldId": "cd_classe"
+					},
+					{
+						"kind": "field",
+						"fieldId": "resistencias_dano",
+						"span": 4
+					},
+					{
+						"kind": "field",
+						"fieldId": "condicoes",
+						"span": 4
+					}
+				],
+				"tab": "Combate"
+			},
+			{
+				"kind": "section",
+				"title": "Escudo",
+				"columns": 4,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "escudo_erguido"
+					},
+					{
+						"kind": "field",
+						"fieldId": "escudo_ca"
+					},
+					{
+						"kind": "field",
+						"fieldId": "escudo_dureza"
+					},
+					{
+						"kind": "field",
+						"fieldId": "escudo_pv"
+					}
+				]
+			},
+			{
+				"kind": "section",
+				"title": "Golpes",
+				"columns": 1,
+				"children": [{
+					"kind": "field",
+					"fieldId": "ataques"
+				}]
+			},
+			{
+				"kind": "section",
+				"title": "Magia",
+				"columns": 3,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "tradicao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "atributo_magia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "mod_magia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "prof_magia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "ataque_magia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "cd_magia"
+					},
+					{
+						"kind": "field",
+						"fieldId": "foco"
+					},
+					{
+						"kind": "field",
+						"fieldId": "magias",
+						"span": 3
+					}
+				],
+				"tab": "Magias"
+			},
+			{
+				"kind": "section",
+				"title": "Equipamento",
+				"columns": 3,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "equipamento",
+						"span": 4
+					},
+					{
+						"kind": "field",
+						"fieldId": "volume_total"
+					},
+					{
+						"kind": "field",
+						"fieldId": "limite_volume"
+					},
+					{
+						"kind": "field",
+						"fieldId": "investidos"
+					},
+					{
+						"kind": "field",
+						"fieldId": "po"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pp"
+					},
+					{
+						"kind": "field",
+						"fieldId": "pc"
+					}
+				],
+				"tab": "Inventário"
+			},
+			{
+				"kind": "section",
+				"title": "Personagem",
+				"columns": 4,
+				"children": [
+					{
+						"kind": "field",
+						"fieldId": "nome",
+						"span": 2
+					},
+					{
+						"kind": "field",
+						"fieldId": "jogador"
+					},
+					{
+						"kind": "field",
+						"fieldId": "nivel"
+					},
+					{
+						"kind": "field",
+						"fieldId": "ancestralidade"
+					},
+					{
+						"kind": "field",
+						"fieldId": "heranca"
+					},
+					{
+						"kind": "field",
+						"fieldId": "formacao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "classe"
+					},
+					{
+						"kind": "field",
+						"fieldId": "tamanho"
+					},
+					{
+						"kind": "field",
+						"fieldId": "deslocamento"
+					},
+					{
+						"kind": "field",
+						"fieldId": "px"
+					},
+					{
+						"kind": "field",
+						"fieldId": "heroismo"
+					},
+					{
+						"kind": "field",
+						"fieldId": "idiomas",
+						"span": 2
+					},
+					{
+						"kind": "field",
+						"fieldId": "tracos",
+						"span": 2
+					}
+				],
+				"tab": "Personagem"
+			},
+			{
+				"kind": "section",
+				"title": "Talentos e habilidades",
+				"columns": 1,
+				"children": [{
+					"kind": "field",
+					"fieldId": "talentos"
+				}]
+			},
+			{
+				"kind": "section",
+				"title": "Personalidade",
+				"columns": 1,
+				"children": [{
+					"kind": "field",
+					"fieldId": "personalidade"
+				}]
+			},
+			{
+				"kind": "section",
+				"title": "Anotações",
+				"columns": 1,
+				"children": [{
+					"kind": "field",
+					"fieldId": "anotacoes"
+				}],
+				"tab": "Anotações"
+			}
+		],
+		"gmSummary": [
+			"pv",
+			"ca",
+			"percepcao",
+			"fortitude",
+			"reflexos",
+			"vontade",
+			"condicoes",
+			"heroismo",
+			"moribundo"
+		]
+	}
+};
 //#endregion
 //#region ../../packages/templates/src/index.ts
 /**
@@ -6927,9 +9768,9 @@ object({
 */
 var BUILTIN_TEMPLATES = [{
 	id: "dnd5e-srd",
-	version: "1.4.0",
+	version: "1.7.0",
 	name: "D&D 5ª Edição (SRD 5.1)",
-	description: "Ficha para personagens de D&D 5ª edição. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium.",
+	description: "Ficha para personagens de D&D 5ª edição, com opção para as regras de 2024 (5.5): maestria de armas, talento de origem e a Exaustão nova. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium. This work includes material from the System Reference Document 5.2 (\"SRD 5.2\") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
 	author: "Tabularium",
 	license: "CC-BY-4.0",
 	language: "pt-BR",
@@ -6940,12 +9781,30 @@ var BUILTIN_TEMPLATES = [{
 	],
 	source: "builtin",
 	initiative: "iniciativa",
+	bonusTab: "Combate",
 	fields: [
 		{
 			"id": "nome",
 			"key": "nome",
 			"label": "Nome do personagem",
 			"type": "text"
+		},
+		{
+			"id": "edicao",
+			"key": "edicao",
+			"label": "Regras",
+			"type": "select",
+			"options": [{
+				"value": "2014",
+				"label": "5e (2014)",
+				"number": 0
+			}, {
+				"value": "2024",
+				"label": "5.5 (2024)",
+				"number": 1
+			}],
+			"default": "2014",
+			"description": "As regras de 2024 trocam raça por espécie, dão um talento de origem pelo antecedente, maestria de armas e mudam a Exaustão."
 		},
 		{
 			"id": "classe",
@@ -6966,7 +9825,7 @@ var BUILTIN_TEMPLATES = [{
 		{
 			"id": "raca",
 			"key": "raca",
-			"label": "Raça",
+			"label": "Raça / Espécie",
 			"type": "text"
 		},
 		{
@@ -6974,6 +9833,13 @@ var BUILTIN_TEMPLATES = [{
 			"key": "antecedente",
 			"label": "Antecedente",
 			"type": "text"
+		},
+		{
+			"id": "talento_origem",
+			"key": "talento_origem",
+			"label": "Talento de origem",
+			"type": "text",
+			"description": "Regras de 2024: o talento que o antecedente dá no 1º nível."
 		},
 		{
 			"id": "alinhamento",
@@ -7148,7 +10014,8 @@ var BUILTIN_TEMPLATES = [{
 			"id": "inspiracao",
 			"key": "inspiracao",
 			"label": "Inspiração",
-			"type": "boolean"
+			"type": "boolean",
+			"description": "Na 2024 é a Inspiração Heroica: gaste para rolar de novo um dado."
 		},
 		{
 			"id": "prof_salv_for",
@@ -7161,7 +10028,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_for",
 			"label": "Resistência de Força",
 			"type": "computed",
-			"formula": "@for_mod + if(@prof_salv_for, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@for_mod + if(@prof_salv_for, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7175,7 +10042,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_des",
 			"label": "Resistência de Destreza",
 			"type": "computed",
-			"formula": "@des_mod + if(@prof_salv_des, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@des_mod + if(@prof_salv_des, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7189,7 +10056,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_con",
 			"label": "Resistência de Constituição",
 			"type": "computed",
-			"formula": "@con_mod + if(@prof_salv_con, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@con_mod + if(@prof_salv_con, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7203,7 +10070,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_int",
 			"label": "Resistência de Inteligência",
 			"type": "computed",
-			"formula": "@int_mod + if(@prof_salv_int, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@int_mod + if(@prof_salv_int, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7217,7 +10084,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_sab",
 			"label": "Resistência de Sabedoria",
 			"type": "computed",
-			"formula": "@sab_mod + if(@prof_salv_sab, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@sab_mod + if(@prof_salv_sab, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7231,7 +10098,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "salv_car",
 			"label": "Resistência de Carisma",
 			"type": "computed",
-			"formula": "@car_mod + if(@prof_salv_car, @bonus_prof, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
+			"formula": "@car_mod + if(@prof_salv_car, @bonus_prof, 0)",
 			"signed": true
 		},
 		{
@@ -7252,7 +10119,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "acrobacia",
 			"label": "Acrobacia (Des)",
 			"type": "computed",
-			"formula": "@des_mod + @bonus_prof * if(@prof_acrobacia, 1 + @esp_acrobacia, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@des_mod + @bonus_prof * if(@prof_acrobacia, 1 + @esp_acrobacia, 0)",
 			"signed": true
 		},
 		{
@@ -7273,7 +10140,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "adestrar_animais",
 			"label": "Adestrar Animais (Sab)",
 			"type": "computed",
-			"formula": "@sab_mod + @bonus_prof * if(@prof_adestrar_animais, 1 + @esp_adestrar_animais, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@sab_mod + @bonus_prof * if(@prof_adestrar_animais, 1 + @esp_adestrar_animais, 0)",
 			"signed": true
 		},
 		{
@@ -7294,7 +10161,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "arcanismo",
 			"label": "Arcanismo (Int)",
 			"type": "computed",
-			"formula": "@int_mod + @bonus_prof * if(@prof_arcanismo, 1 + @esp_arcanismo, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@int_mod + @bonus_prof * if(@prof_arcanismo, 1 + @esp_arcanismo, 0)",
 			"signed": true
 		},
 		{
@@ -7315,7 +10182,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "atletismo",
 			"label": "Atletismo (For)",
 			"type": "computed",
-			"formula": "@for_mod + @bonus_prof * if(@prof_atletismo, 1 + @esp_atletismo, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@for_mod + @bonus_prof * if(@prof_atletismo, 1 + @esp_atletismo, 0)",
 			"signed": true
 		},
 		{
@@ -7336,7 +10203,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "atuacao",
 			"label": "Atuação (Car)",
 			"type": "computed",
-			"formula": "@car_mod + @bonus_prof * if(@prof_atuacao, 1 + @esp_atuacao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@car_mod + @bonus_prof * if(@prof_atuacao, 1 + @esp_atuacao, 0)",
 			"signed": true
 		},
 		{
@@ -7357,7 +10224,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "enganacao",
 			"label": "Enganação (Car)",
 			"type": "computed",
-			"formula": "@car_mod + @bonus_prof * if(@prof_enganacao, 1 + @esp_enganacao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@car_mod + @bonus_prof * if(@prof_enganacao, 1 + @esp_enganacao, 0)",
 			"signed": true
 		},
 		{
@@ -7378,7 +10245,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "furtividade",
 			"label": "Furtividade (Des)",
 			"type": "computed",
-			"formula": "@des_mod + @bonus_prof * if(@prof_furtividade, 1 + @esp_furtividade, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@des_mod + @bonus_prof * if(@prof_furtividade, 1 + @esp_furtividade, 0)",
 			"signed": true
 		},
 		{
@@ -7399,7 +10266,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "historia",
 			"label": "História (Int)",
 			"type": "computed",
-			"formula": "@int_mod + @bonus_prof * if(@prof_historia, 1 + @esp_historia, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@int_mod + @bonus_prof * if(@prof_historia, 1 + @esp_historia, 0)",
 			"signed": true
 		},
 		{
@@ -7420,7 +10287,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "intimidacao",
 			"label": "Intimidação (Car)",
 			"type": "computed",
-			"formula": "@car_mod + @bonus_prof * if(@prof_intimidacao, 1 + @esp_intimidacao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@car_mod + @bonus_prof * if(@prof_intimidacao, 1 + @esp_intimidacao, 0)",
 			"signed": true
 		},
 		{
@@ -7441,7 +10308,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "intuicao",
 			"label": "Intuição (Sab)",
 			"type": "computed",
-			"formula": "@sab_mod + @bonus_prof * if(@prof_intuicao, 1 + @esp_intuicao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@sab_mod + @bonus_prof * if(@prof_intuicao, 1 + @esp_intuicao, 0)",
 			"signed": true
 		},
 		{
@@ -7462,7 +10329,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "investigacao",
 			"label": "Investigação (Int)",
 			"type": "computed",
-			"formula": "@int_mod + @bonus_prof * if(@prof_investigacao, 1 + @esp_investigacao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@int_mod + @bonus_prof * if(@prof_investigacao, 1 + @esp_investigacao, 0)",
 			"signed": true
 		},
 		{
@@ -7483,7 +10350,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "medicina",
 			"label": "Medicina (Sab)",
 			"type": "computed",
-			"formula": "@sab_mod + @bonus_prof * if(@prof_medicina, 1 + @esp_medicina, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@sab_mod + @bonus_prof * if(@prof_medicina, 1 + @esp_medicina, 0)",
 			"signed": true
 		},
 		{
@@ -7504,7 +10371,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "natureza",
 			"label": "Natureza (Int)",
 			"type": "computed",
-			"formula": "@int_mod + @bonus_prof * if(@prof_natureza, 1 + @esp_natureza, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@int_mod + @bonus_prof * if(@prof_natureza, 1 + @esp_natureza, 0)",
 			"signed": true
 		},
 		{
@@ -7525,7 +10392,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "percepcao",
 			"label": "Percepção (Sab)",
 			"type": "computed",
-			"formula": "@sab_mod + @bonus_prof * if(@prof_percepcao, 1 + @esp_percepcao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@sab_mod + @bonus_prof * if(@prof_percepcao, 1 + @esp_percepcao, 0)",
 			"signed": true
 		},
 		{
@@ -7546,7 +10413,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "persuasao",
 			"label": "Persuasão (Car)",
 			"type": "computed",
-			"formula": "@car_mod + @bonus_prof * if(@prof_persuasao, 1 + @esp_persuasao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@car_mod + @bonus_prof * if(@prof_persuasao, 1 + @esp_persuasao, 0)",
 			"signed": true
 		},
 		{
@@ -7567,7 +10434,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "prestidigitacao",
 			"label": "Prestidigitação (Des)",
 			"type": "computed",
-			"formula": "@des_mod + @bonus_prof * if(@prof_prestidigitacao, 1 + @esp_prestidigitacao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@des_mod + @bonus_prof * if(@prof_prestidigitacao, 1 + @esp_prestidigitacao, 0)",
 			"signed": true
 		},
 		{
@@ -7588,7 +10455,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "religiao",
 			"label": "Religião (Int)",
 			"type": "computed",
-			"formula": "@int_mod + @bonus_prof * if(@prof_religiao, 1 + @esp_religiao, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@int_mod + @bonus_prof * if(@prof_religiao, 1 + @esp_religiao, 0)",
 			"signed": true
 		},
 		{
@@ -7609,7 +10476,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "sobrevivencia",
 			"label": "Sobrevivência (Sab)",
 			"type": "computed",
-			"formula": "@sab_mod + @bonus_prof * if(@prof_sobrevivencia, 1 + @esp_sobrevivencia, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
+			"formula": "@sab_mod + @bonus_prof * if(@prof_sobrevivencia, 1 + @esp_sobrevivencia, 0)",
 			"signed": true
 		},
 		{
@@ -7624,7 +10491,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "ca_total",
 			"label": "Classe de Armadura",
 			"type": "computed",
-			"formula": "@ca + sum(@equipamento.bonus_ca * @equipamento.equipado) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"ca\"))",
+			"formula": "@ca + sum(@equipamento.bonus_ca * @equipamento.equipado)",
 			"description": "CA base + bônus dos itens equipados + efeitos ativos."
 		},
 		{
@@ -7642,7 +10509,7 @@ var BUILTIN_TEMPLATES = [{
 			"key": "iniciativa",
 			"label": "Iniciativa",
 			"type": "computed",
-			"formula": "@des_mod + @bonus_iniciativa + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"iniciativa\"))",
+			"formula": "@des_mod + @bonus_iniciativa",
 			"signed": true
 		},
 		{
@@ -7778,7 +10645,17 @@ var BUILTIN_TEMPLATES = [{
 			"min": 0,
 			"max": 6,
 			"integer": true,
-			"display": "marcadores"
+			"display": "marcadores",
+			"description": "Na 2024: cada nível dá −2 nos testes de d20 e −1,5 m de deslocamento; no 6º nível o personagem morre."
+		},
+		{
+			"id": "exaustao_penalidade",
+			"key": "exaustao_penalidade",
+			"label": "Penalidade da Exaustão (2024)",
+			"type": "computed",
+			"formula": "-2 * @exaustao * @edicao",
+			"signed": true,
+			"description": "Some nos testes de d20 (regras de 2024)."
 		},
 		{
 			"id": "ataques",
@@ -7814,12 +10691,116 @@ var BUILTIN_TEMPLATES = [{
 					"type": "text"
 				},
 				{
+					"id": "maestria",
+					"key": "maestria",
+					"label": "Maestria",
+					"type": "select",
+					"options": [
+						{
+							"value": "nenhuma",
+							"label": "—"
+						},
+						{
+							"value": "afligir",
+							"label": "Afligir"
+						},
+						{
+							"value": "agil",
+							"label": "Ágil"
+						},
+						{
+							"value": "derrubar",
+							"label": "Derrubar"
+						},
+						{
+							"value": "drenar",
+							"label": "Drenar"
+						},
+						{
+							"value": "empurrar",
+							"label": "Empurrar"
+						},
+						{
+							"value": "garantido",
+							"label": "Garantido"
+						},
+						{
+							"value": "lentidao",
+							"label": "Lentidão"
+						},
+						{
+							"value": "trespassar",
+							"label": "Trespassar"
+						}
+					],
+					"default": "nenhuma",
+					"description": "Afligir: vantagem no próximo ataque contra o alvo. Ágil: o ataque extra de Leve entra na ação Atacar. Derrubar: salvaguarda de Con ou Caído. Drenar: desvantagem no próximo ataque do alvo. Empurrar: 3 m para longe. Garantido: ao errar, dano igual ao modificador. Lentidão: −3 m de deslocamento. Trespassar: ataque extra numa segunda criatura."
+				},
+				{
 					"id": "notas",
 					"key": "notas",
 					"label": "Notas",
 					"type": "text"
 				}
-			]
+			],
+			"attack": {
+				"bonus": "bonus",
+				"damage": "dano"
+			}
+		},
+		{
+			"id": "maestrias",
+			"key": "maestrias",
+			"label": "Maestrias de arma (2024)",
+			"type": "list",
+			"maxItems": 10,
+			"itemFields": [{
+				"id": "arma",
+				"key": "arma",
+				"label": "Tipo de arma",
+				"type": "text"
+			}, {
+				"id": "propriedade",
+				"key": "propriedade",
+				"label": "Propriedade",
+				"type": "select",
+				"options": [
+					{
+						"value": "afligir",
+						"label": "Afligir"
+					},
+					{
+						"value": "agil",
+						"label": "Ágil"
+					},
+					{
+						"value": "derrubar",
+						"label": "Derrubar"
+					},
+					{
+						"value": "drenar",
+						"label": "Drenar"
+					},
+					{
+						"value": "empurrar",
+						"label": "Empurrar"
+					},
+					{
+						"value": "garantido",
+						"label": "Garantido"
+					},
+					{
+						"value": "lentidao",
+						"label": "Lentidão"
+					},
+					{
+						"value": "trespassar",
+						"label": "Trespassar"
+					}
+				],
+				"default": "afligir"
+			}],
+			"description": "Os tipos de arma cuja maestria você desbloqueou (a classe diz quantos). Troque um após um Descanso Longo. Afligir: vantagem no próximo ataque contra o alvo. Ágil: o ataque extra de Leve entra na ação Atacar. Derrubar: salvaguarda de Con ou Caído. Drenar: desvantagem no próximo ataque do alvo. Empurrar: 3 m para longe. Garantido: ao errar, dano igual ao modificador. Lentidão: −3 m de deslocamento. Trespassar: ataque extra numa segunda criatura."
 		},
 		{
 			"id": "atributo_conjuracao",
@@ -8098,59 +11079,6 @@ var BUILTIN_TEMPLATES = [{
 			"type": "computed",
 			"formula": "round(@for * 6.8)",
 			"description": "Força × 15 libras (≈ 6,8 kg), pela regra do SRD."
-		},
-		{
-			"id": "efeitos",
-			"key": "efeitos",
-			"label": "Efeitos temporários",
-			"type": "list",
-			"maxItems": 30,
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Efeito",
-					"type": "text"
-				},
-				{
-					"id": "alvo",
-					"key": "alvo",
-					"label": "Afeta",
-					"type": "select",
-					"options": [
-						{
-							"value": "ca",
-							"label": "Classe de Armadura"
-						},
-						{
-							"value": "iniciativa",
-							"label": "Iniciativa"
-						},
-						{
-							"value": "resistencias",
-							"label": "Testes de resistência"
-						},
-						{
-							"value": "pericias",
-							"label": "Perícias"
-						}
-					]
-				},
-				{
-					"id": "valor",
-					"key": "valor",
-					"label": "Valor",
-					"type": "number",
-					"default": 0
-				},
-				{
-					"id": "ativo",
-					"key": "ativo",
-					"label": "Ativo",
-					"type": "boolean",
-					"default": true
-				}
-			]
 		},
 		{
 			"id": "personalidade",
@@ -8644,6 +11572,10 @@ var BUILTIN_TEMPLATES = [{
 					{
 						"kind": "field",
 						"fieldId": "exaustao"
+					},
+					{
+						"kind": "field",
+						"fieldId": "exaustao_penalidade"
 					}
 				],
 				"tab": "Combate"
@@ -8655,16 +11587,9 @@ var BUILTIN_TEMPLATES = [{
 				"children": [{
 					"kind": "field",
 					"fieldId": "ataques"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Efeitos temporários",
-				"columns": 1,
-				"children": [{
+				}, {
 					"kind": "field",
-					"fieldId": "efeitos",
-					"span": 1
+					"fieldId": "maestrias"
 				}]
 			},
 			{
@@ -8789,6 +11714,10 @@ var BUILTIN_TEMPLATES = [{
 					},
 					{
 						"kind": "field",
+						"fieldId": "edicao"
+					},
+					{
+						"kind": "field",
 						"fieldId": "classe"
 					},
 					{
@@ -8802,6 +11731,10 @@ var BUILTIN_TEMPLATES = [{
 					{
 						"kind": "field",
 						"fieldId": "antecedente"
+					},
+					{
+						"kind": "field",
+						"fieldId": "talento_origem"
 					},
 					{
 						"kind": "field",
@@ -8884,2373 +11817,11 @@ var BUILTIN_TEMPLATES = [{
 			"inspiracao"
 		]
 	}
-}, {
-	id: "lendas-d20-orc",
-	version: "1.3.0",
-	name: "Lendas d20 (ORC)",
-	description: "Ficha para fantasia heroica d20 com graus de proficiência (destreinado a lendário), atributos como modificadores e três ações por turno. ORC Notice: This product is licensed under the ORC License held in the Library of Congress at TX 9-307-067 and available online at various locations including www.azoralaw.com/orclicense, www.gencon.com/orclicense and others. All warranties are disclaimed as set forth therein. Attribution: This product is based on the following Licensed Material: Player Core © 2023 Paizo Inc., Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter. Reserved Material: nomes, cenário e marcas da Paizo não são usados. Expressed Material: esta ficha (layout e textos) não é material licenciado.",
-	author: "Tabularium",
-	license: "ORC",
-	language: "pt-BR",
-	tags: [
-		"fantasia",
-		"d20",
-		"orc"
-	],
-	source: "builtin",
-	initiative: "percepcao",
-	fields: [
-		{
-			"id": "nome",
-			"key": "nome",
-			"label": "Nome do personagem",
-			"type": "text"
-		},
-		{
-			"id": "jogador",
-			"key": "jogador",
-			"label": "Jogador",
-			"type": "text"
-		},
-		{
-			"id": "nivel",
-			"key": "nivel",
-			"label": "Nível",
-			"type": "number",
-			"default": 1,
-			"min": 1,
-			"max": 20,
-			"integer": true
-		},
-		{
-			"id": "ancestralidade",
-			"key": "ancestralidade",
-			"label": "Ancestralidade",
-			"type": "text"
-		},
-		{
-			"id": "heranca",
-			"key": "heranca",
-			"label": "Herança",
-			"type": "text"
-		},
-		{
-			"id": "formacao",
-			"key": "formacao",
-			"label": "Formação",
-			"type": "text"
-		},
-		{
-			"id": "classe",
-			"key": "classe",
-			"label": "Classe",
-			"type": "text"
-		},
-		{
-			"id": "tamanho",
-			"key": "tamanho",
-			"label": "Tamanho",
-			"type": "select",
-			"options": [
-				{
-					"value": "minusculo",
-					"label": "Minúsculo"
-				},
-				{
-					"value": "pequeno",
-					"label": "Pequeno"
-				},
-				{
-					"value": "medio",
-					"label": "Médio"
-				},
-				{
-					"value": "grande",
-					"label": "Grande"
-				},
-				{
-					"value": "enorme",
-					"label": "Enorme"
-				},
-				{
-					"value": "imenso",
-					"label": "Imenso"
-				}
-			],
-			"default": "medio"
-		},
-		{
-			"id": "deslocamento",
-			"key": "deslocamento",
-			"label": "Deslocamento (m)",
-			"type": "number",
-			"default": 7.5,
-			"min": 0
-		},
-		{
-			"id": "px",
-			"key": "px",
-			"label": "Pontos de experiência",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"max": 999,
-			"integer": true,
-			"description": "Ao chegar a 1000, suba de nível e subtraia 1000."
-		},
-		{
-			"id": "heroismo",
-			"key": "heroismo",
-			"label": "Pontos de Heroísmo",
-			"type": "resource",
-			"default": 1,
-			"max": "3",
-			"description": "Gaste para rolar de novo ou para evitar a morte.",
-			"display": "marcadores"
-		},
-		{
-			"id": "idiomas",
-			"key": "idiomas",
-			"label": "Idiomas",
-			"type": "text"
-		},
-		{
-			"id": "tracos",
-			"key": "tracos",
-			"label": "Traços",
-			"type": "text"
-		},
-		{
-			"id": "for",
-			"key": "for",
-			"label": "Força",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "des",
-			"key": "des",
-			"label": "Destreza",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "con",
-			"key": "con",
-			"label": "Constituição",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "int",
-			"key": "int",
-			"label": "Inteligência",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "sab",
-			"key": "sab",
-			"label": "Sabedoria",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "car",
-			"key": "car",
-			"label": "Carisma",
-			"type": "number",
-			"default": 0,
-			"min": -5,
-			"max": 10,
-			"integer": true,
-			"description": "Modificador de atributo (o Remaster não usa valores)."
-		},
-		{
-			"id": "atributo_chave",
-			"key": "atributo_chave",
-			"label": "Atributo-chave da classe",
-			"type": "select",
-			"options": [
-				{
-					"value": "for",
-					"label": "Força"
-				},
-				{
-					"value": "des",
-					"label": "Destreza"
-				},
-				{
-					"value": "con",
-					"label": "Constituição"
-				},
-				{
-					"value": "int",
-					"label": "Inteligência"
-				},
-				{
-					"value": "sab",
-					"label": "Sabedoria"
-				},
-				{
-					"value": "car",
-					"label": "Carisma"
-				}
-			],
-			"default": "for"
-		},
-		{
-			"id": "mod_chave",
-			"key": "mod_chave",
-			"label": "Mod. do atributo-chave",
-			"type": "computed",
-			"formula": "is(@atributo_chave, \"for\") * @for + is(@atributo_chave, \"des\") * @des + is(@atributo_chave, \"con\") * @con + is(@atributo_chave, \"int\") * @int + is(@atributo_chave, \"sab\") * @sab + is(@atributo_chave, \"car\") * @car",
-			"signed": true
-		},
-		{
-			"id": "prof_fortitude",
-			"key": "prof_fortitude",
-			"label": "Proficiência em Fortitude",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "fortitude",
-			"key": "fortitude",
-			"label": "Fortitude (Con)",
-			"type": "computed",
-			"formula": "@con + if(@prof_fortitude > 0, @prof_fortitude + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_reflexos",
-			"key": "prof_reflexos",
-			"label": "Proficiência em Reflexos",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "reflexos",
-			"key": "reflexos",
-			"label": "Reflexos (Des)",
-			"type": "computed",
-			"formula": "@des + if(@prof_reflexos > 0, @prof_reflexos + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_vontade",
-			"key": "prof_vontade",
-			"label": "Proficiência em Vontade",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "vontade",
-			"key": "vontade",
-			"label": "Vontade (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_vontade > 0, @prof_vontade + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"resistencias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_percepcao",
-			"key": "prof_percepcao",
-			"label": "Proficiência em Percepção",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "percepcao",
-			"key": "percepcao",
-			"label": "Percepção (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_percepcao > 0, @prof_percepcao + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"percepcao\"))",
-			"signed": true
-		},
-		{
-			"id": "ca",
-			"key": "ca",
-			"label": "Classe de Armadura",
-			"type": "computed",
-			"formula": "10 + min(@des, @limite_des) + if(@prof_armadura > 0, @prof_armadura + @nivel, 0) + @bonus_armadura + @escudo_erguido * @escudo_ca + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"ca\"))",
-			"description": "10 + Destreza (até o limite da armadura) + proficiência + armadura + escudo erguido + efeitos."
-		},
-		{
-			"id": "prof_armadura",
-			"key": "prof_armadura",
-			"label": "Proficiência na armadura",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "bonus_armadura",
-			"key": "bonus_armadura",
-			"label": "Bônus de item da armadura",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "limite_des",
-			"key": "limite_des",
-			"label": "Limite de Destreza",
-			"type": "number",
-			"default": 10,
-			"min": 0,
-			"integer": true,
-			"description": "Da armadura vestida. Sem armadura, deixe alto."
-		},
-		{
-			"id": "pv",
-			"key": "pv",
-			"label": "Pontos de Vida",
-			"type": "resource",
-			"default": 10,
-			"max": "@pv_ancestralidade + (@pv_classe + @con) * @nivel"
-		},
-		{
-			"id": "pv_temp",
-			"key": "pv_temp",
-			"label": "PV temporários",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "pv_ancestralidade",
-			"key": "pv_ancestralidade",
-			"label": "PV da ancestralidade",
-			"type": "number",
-			"default": 8,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "pv_classe",
-			"key": "pv_classe",
-			"label": "PV da classe por nível",
-			"type": "number",
-			"default": 8,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "moribundo",
-			"key": "moribundo",
-			"label": "Moribundo",
-			"type": "resource",
-			"default": 0,
-			"max": "4 - @ferido",
-			"description": "Chegar ao máximo é a morte. Ferido diminui o limite.",
-			"display": "marcadores"
-		},
-		{
-			"id": "ferido",
-			"key": "ferido",
-			"label": "Ferido",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"max": 3,
-			"integer": true,
-			"display": "marcadores"
-		},
-		{
-			"id": "prof_classe",
-			"key": "prof_classe",
-			"label": "Proficiência na CD de classe",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "treinado"
-		},
-		{
-			"id": "cd_classe",
-			"key": "cd_classe",
-			"label": "CD de classe",
-			"type": "computed",
-			"formula": "10 + @mod_chave + if(@prof_classe > 0, @prof_classe + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"cd\"))"
-		},
-		{
-			"id": "resistencias_dano",
-			"key": "resistencias_dano",
-			"label": "Resistências, fraquezas e imunidades",
-			"type": "text"
-		},
-		{
-			"id": "condicoes",
-			"key": "condicoes",
-			"label": "Condições",
-			"type": "select",
-			"multiple": true,
-			"options": [
-				{
-					"value": "agarrado",
-					"label": "Agarrado"
-				},
-				{
-					"value": "amedrontado",
-					"label": "Amedrontado"
-				},
-				{
-					"value": "atordoado",
-					"label": "Atordoado"
-				},
-				{
-					"value": "caido",
-					"label": "Caído"
-				},
-				{
-					"value": "cego",
-					"label": "Cego"
-				},
-				{
-					"value": "confuso",
-					"label": "Confuso"
-				},
-				{
-					"value": "desprevenido",
-					"label": "Desprevenido"
-				},
-				{
-					"value": "enfraquecido",
-					"label": "Enfraquecido"
-				},
-				{
-					"value": "enjoado",
-					"label": "Enjoado"
-				},
-				{
-					"value": "escondido",
-					"label": "Escondido"
-				},
-				{
-					"value": "fatigado",
-					"label": "Fatigado"
-				},
-				{
-					"value": "imobilizado",
-					"label": "Imobilizado"
-				},
-				{
-					"value": "inconsciente",
-					"label": "Inconsciente"
-				},
-				{
-					"value": "lento",
-					"label": "Lento"
-				},
-				{
-					"value": "ofuscado",
-					"label": "Ofuscado"
-				},
-				{
-					"value": "paralisado",
-					"label": "Paralisado"
-				},
-				{
-					"value": "petrificado",
-					"label": "Petrificado"
-				},
-				{
-					"value": "rapido",
-					"label": "Rápido"
-				},
-				{
-					"value": "surdo",
-					"label": "Surdo"
-				}
-			]
-		},
-		{
-			"id": "escudo_erguido",
-			"key": "escudo_erguido",
-			"label": "Escudo erguido",
-			"type": "boolean"
-		},
-		{
-			"id": "escudo_ca",
-			"key": "escudo_ca",
-			"label": "Bônus de CA do escudo",
-			"type": "number",
-			"default": 2,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "escudo_dureza",
-			"key": "escudo_dureza",
-			"label": "Dureza do escudo",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "escudo_pv",
-			"key": "escudo_pv",
-			"label": "PV do escudo",
-			"type": "resource",
-			"default": 0
-		},
-		{
-			"id": "prof_acrobatismo",
-			"key": "prof_acrobatismo",
-			"label": "Proficiência em Acrobatismo",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "acrobatismo",
-			"key": "acrobatismo",
-			"label": "Acrobatismo (Des)",
-			"type": "computed",
-			"formula": "@des + if(@prof_acrobatismo > 0, @prof_acrobatismo + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_arcanismo",
-			"key": "prof_arcanismo",
-			"label": "Proficiência em Arcanismo",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "arcanismo",
-			"key": "arcanismo",
-			"label": "Arcanismo (Int)",
-			"type": "computed",
-			"formula": "@int + if(@prof_arcanismo > 0, @prof_arcanismo + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_atletismo",
-			"key": "prof_atletismo",
-			"label": "Proficiência em Atletismo",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "atletismo",
-			"key": "atletismo",
-			"label": "Atletismo (For)",
-			"type": "computed",
-			"formula": "@for + if(@prof_atletismo > 0, @prof_atletismo + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_diplomacia",
-			"key": "prof_diplomacia",
-			"label": "Proficiência em Diplomacia",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "diplomacia",
-			"key": "diplomacia",
-			"label": "Diplomacia (Car)",
-			"type": "computed",
-			"formula": "@car + if(@prof_diplomacia > 0, @prof_diplomacia + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_enganacao",
-			"key": "prof_enganacao",
-			"label": "Proficiência em Enganação",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "enganacao",
-			"key": "enganacao",
-			"label": "Enganação (Car)",
-			"type": "computed",
-			"formula": "@car + if(@prof_enganacao > 0, @prof_enganacao + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_furtividade",
-			"key": "prof_furtividade",
-			"label": "Proficiência em Furtividade",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "furtividade",
-			"key": "furtividade",
-			"label": "Furtividade (Des)",
-			"type": "computed",
-			"formula": "@des + if(@prof_furtividade > 0, @prof_furtividade + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_intimidacao",
-			"key": "prof_intimidacao",
-			"label": "Proficiência em Intimidação",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "intimidacao",
-			"key": "intimidacao",
-			"label": "Intimidação (Car)",
-			"type": "computed",
-			"formula": "@car + if(@prof_intimidacao > 0, @prof_intimidacao + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_ladinagem",
-			"key": "prof_ladinagem",
-			"label": "Proficiência em Ladinagem",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "ladinagem",
-			"key": "ladinagem",
-			"label": "Ladinagem (Des)",
-			"type": "computed",
-			"formula": "@des + if(@prof_ladinagem > 0, @prof_ladinagem + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_manufatura",
-			"key": "prof_manufatura",
-			"label": "Proficiência em Manufatura",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "manufatura",
-			"key": "manufatura",
-			"label": "Manufatura (Int)",
-			"type": "computed",
-			"formula": "@int + if(@prof_manufatura > 0, @prof_manufatura + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_medicina",
-			"key": "prof_medicina",
-			"label": "Proficiência em Medicina",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "medicina",
-			"key": "medicina",
-			"label": "Medicina (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_medicina > 0, @prof_medicina + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_natureza",
-			"key": "prof_natureza",
-			"label": "Proficiência em Natureza",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "natureza",
-			"key": "natureza",
-			"label": "Natureza (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_natureza > 0, @prof_natureza + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_ocultismo",
-			"key": "prof_ocultismo",
-			"label": "Proficiência em Ocultismo",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "ocultismo",
-			"key": "ocultismo",
-			"label": "Ocultismo (Int)",
-			"type": "computed",
-			"formula": "@int + if(@prof_ocultismo > 0, @prof_ocultismo + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_performance",
-			"key": "prof_performance",
-			"label": "Proficiência em Performance",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "performance",
-			"key": "performance",
-			"label": "Performance (Car)",
-			"type": "computed",
-			"formula": "@car + if(@prof_performance > 0, @prof_performance + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_religiao",
-			"key": "prof_religiao",
-			"label": "Proficiência em Religião",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "religiao",
-			"key": "religiao",
-			"label": "Religião (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_religiao > 0, @prof_religiao + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_sobrevivencia",
-			"key": "prof_sobrevivencia",
-			"label": "Proficiência em Sobrevivência",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "sobrevivencia",
-			"key": "sobrevivencia",
-			"label": "Sobrevivência (Sab)",
-			"type": "computed",
-			"formula": "@sab + if(@prof_sobrevivencia > 0, @prof_sobrevivencia + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "prof_sociedade",
-			"key": "prof_sociedade",
-			"label": "Proficiência em Sociedade",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			],
-			"default": "destreinado"
-		},
-		{
-			"id": "sociedade",
-			"key": "sociedade",
-			"label": "Sociedade (Int)",
-			"type": "computed",
-			"formula": "@int + if(@prof_sociedade > 0, @prof_sociedade + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"pericias\"))",
-			"signed": true
-		},
-		{
-			"id": "saberes",
-			"key": "saberes",
-			"label": "Saberes",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Saber",
-					"type": "text"
-				},
-				{
-					"id": "grau",
-					"key": "grau",
-					"label": "Grau",
-					"type": "select",
-					"options": [
-						{
-							"value": "destreinado",
-							"label": "Destreinado",
-							"number": 0
-						},
-						{
-							"value": "treinado",
-							"label": "Treinado",
-							"number": 2
-						},
-						{
-							"value": "especialista",
-							"label": "Especialista",
-							"number": 4
-						},
-						{
-							"value": "mestre",
-							"label": "Mestre",
-							"number": 6
-						},
-						{
-							"value": "lendario",
-							"label": "Lendário",
-							"number": 8
-						}
-					],
-					"default": "treinado"
-				},
-				{
-					"id": "bonus",
-					"key": "bonus",
-					"label": "Bônus total",
-					"type": "number",
-					"default": 0,
-					"integer": true
-				}
-			]
-		},
-		{
-			"id": "ataques",
-			"key": "ataques",
-			"label": "Golpes",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Arma",
-					"type": "text"
-				},
-				{
-					"id": "bonus",
-					"key": "bonus",
-					"label": "Bônus de ataque",
-					"type": "number",
-					"default": 0,
-					"integer": true
-				},
-				{
-					"id": "dano",
-					"key": "dano",
-					"label": "Dano",
-					"type": "dice"
-				},
-				{
-					"id": "tipo",
-					"key": "tipo",
-					"label": "Tipo de dano",
-					"type": "text"
-				},
-				{
-					"id": "tracos",
-					"key": "tracos",
-					"label": "Traços",
-					"type": "text"
-				}
-			]
-		},
-		{
-			"id": "tradicao",
-			"key": "tradicao",
-			"label": "Tradição",
-			"type": "select",
-			"options": [
-				{
-					"value": "arcana",
-					"label": "Arcana"
-				},
-				{
-					"value": "divina",
-					"label": "Divina"
-				},
-				{
-					"value": "ocultista",
-					"label": "Ocultista"
-				},
-				{
-					"value": "primal",
-					"label": "Primal"
-				}
-			]
-		},
-		{
-			"id": "atributo_magia",
-			"key": "atributo_magia",
-			"label": "Atributo de magia",
-			"type": "select",
-			"options": [
-				{
-					"value": "int",
-					"label": "Inteligência"
-				},
-				{
-					"value": "sab",
-					"label": "Sabedoria"
-				},
-				{
-					"value": "car",
-					"label": "Carisma"
-				}
-			],
-			"default": "int"
-		},
-		{
-			"id": "mod_magia",
-			"key": "mod_magia",
-			"label": "Mod. de magia",
-			"type": "computed",
-			"formula": "is(@atributo_magia, \"int\") * @int + is(@atributo_magia, \"sab\") * @sab + is(@atributo_magia, \"car\") * @car",
-			"signed": true
-		},
-		{
-			"id": "prof_magia",
-			"key": "prof_magia",
-			"label": "Proficiência em magia",
-			"type": "select",
-			"options": [
-				{
-					"value": "destreinado",
-					"label": "Destreinado",
-					"number": 0
-				},
-				{
-					"value": "treinado",
-					"label": "Treinado",
-					"number": 2
-				},
-				{
-					"value": "especialista",
-					"label": "Especialista",
-					"number": 4
-				},
-				{
-					"value": "mestre",
-					"label": "Mestre",
-					"number": 6
-				},
-				{
-					"value": "lendario",
-					"label": "Lendário",
-					"number": 8
-				}
-			]
-		},
-		{
-			"id": "ataque_magia",
-			"key": "ataque_magia",
-			"label": "Ataque com magia",
-			"type": "computed",
-			"formula": "@mod_magia + if(@prof_magia > 0, @prof_magia + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"ataques\"))",
-			"signed": true
-		},
-		{
-			"id": "cd_magia",
-			"key": "cd_magia",
-			"label": "CD de magia",
-			"type": "computed",
-			"formula": "10 + @mod_magia + if(@prof_magia > 0, @prof_magia + @nivel, 0) + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"cd\"))"
-		},
-		{
-			"id": "foco",
-			"key": "foco",
-			"label": "Pontos de Foco",
-			"type": "resource",
-			"default": 0,
-			"max": "3",
-			"display": "marcadores"
-		},
-		{
-			"id": "magias",
-			"key": "magias",
-			"label": "Magias",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Magia",
-					"type": "text"
-				},
-				{
-					"id": "nivel",
-					"key": "nivel",
-					"label": "Grau",
-					"type": "number",
-					"default": 1,
-					"min": 0,
-					"max": 10,
-					"integer": true,
-					"description": "0 para truques."
-				},
-				{
-					"id": "preparada",
-					"key": "preparada",
-					"label": "Preparada",
-					"type": "boolean"
-				},
-				{
-					"id": "acoes",
-					"key": "acoes",
-					"label": "Ações",
-					"type": "text"
-				},
-				{
-					"id": "descricao",
-					"key": "descricao",
-					"label": "Descrição",
-					"type": "longtext"
-				}
-			]
-		},
-		{
-			"id": "talentos",
-			"key": "talentos",
-			"label": "Talentos e habilidades",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Talento",
-					"type": "text"
-				},
-				{
-					"id": "tipo",
-					"key": "tipo",
-					"label": "Tipo",
-					"type": "select",
-					"options": [
-						{
-							"value": "ancestralidade",
-							"label": "Ancestralidade"
-						},
-						{
-							"value": "classe",
-							"label": "Classe"
-						},
-						{
-							"value": "pericia",
-							"label": "Perícia"
-						},
-						{
-							"value": "geral",
-							"label": "Geral"
-						},
-						{
-							"value": "formacao",
-							"label": "Formação"
-						},
-						{
-							"value": "outro",
-							"label": "Outro"
-						}
-					]
-				},
-				{
-					"id": "nivel",
-					"key": "nivel",
-					"label": "Nível",
-					"type": "number",
-					"default": 1,
-					"min": 1,
-					"max": 20,
-					"integer": true
-				},
-				{
-					"id": "descricao",
-					"key": "descricao",
-					"label": "Descrição",
-					"type": "longtext"
-				}
-			]
-		},
-		{
-			"id": "equipamento",
-			"key": "equipamento",
-			"label": "Equipamento",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Item",
-					"type": "text"
-				},
-				{
-					"id": "qtd",
-					"key": "qtd",
-					"label": "Qtd.",
-					"type": "number",
-					"default": 1,
-					"min": 0,
-					"integer": true
-				},
-				{
-					"id": "volume",
-					"key": "volume",
-					"label": "Volume",
-					"type": "number",
-					"default": 0,
-					"min": 0,
-					"description": "L (leve) conta 0,1."
-				},
-				{
-					"id": "investido",
-					"key": "investido",
-					"label": "Investido",
-					"type": "boolean"
-				},
-				{
-					"id": "descricao",
-					"key": "descricao",
-					"label": "Descrição",
-					"type": "longtext"
-				}
-			]
-		},
-		{
-			"id": "volume_total",
-			"key": "volume_total",
-			"label": "Volume carregado",
-			"type": "computed",
-			"formula": "floor(sum(@equipamento.volume * @equipamento.qtd))"
-		},
-		{
-			"id": "limite_volume",
-			"key": "limite_volume",
-			"label": "Limite de volume",
-			"type": "computed",
-			"formula": "5 + @for",
-			"description": "Acima disso, fica sobrecarregado."
-		},
-		{
-			"id": "investidos",
-			"key": "investidos",
-			"label": "Itens investidos",
-			"type": "computed",
-			"formula": "count(@equipamento.investido)",
-			"description": "Máximo de 10."
-		},
-		{
-			"id": "po",
-			"key": "po",
-			"label": "Peças de ouro",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "pp",
-			"key": "pp",
-			"label": "Peças de prata",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "pc",
-			"key": "pc",
-			"label": "Peças de cobre",
-			"type": "number",
-			"default": 0,
-			"min": 0,
-			"integer": true
-		},
-		{
-			"id": "efeitos",
-			"key": "efeitos",
-			"label": "Efeitos temporários",
-			"type": "list",
-			"itemFields": [
-				{
-					"id": "nome",
-					"key": "nome",
-					"label": "Efeito",
-					"type": "text"
-				},
-				{
-					"id": "alvo",
-					"key": "alvo",
-					"label": "Afeta",
-					"type": "select",
-					"options": [
-						{
-							"value": "ca",
-							"label": "Classe de Armadura"
-						},
-						{
-							"value": "ataques",
-							"label": "Ataques"
-						},
-						{
-							"value": "resistencias",
-							"label": "Testes de resistência"
-						},
-						{
-							"value": "pericias",
-							"label": "Perícias"
-						},
-						{
-							"value": "percepcao",
-							"label": "Percepção"
-						},
-						{
-							"value": "cd",
-							"label": "CDs"
-						}
-					],
-					"default": "ca"
-				},
-				{
-					"id": "valor",
-					"key": "valor",
-					"label": "Valor",
-					"type": "number",
-					"default": 1,
-					"integer": true,
-					"description": "Negativo para penalidades (ex.: Amedrontado 1 = -1)."
-				},
-				{
-					"id": "ativo",
-					"key": "ativo",
-					"label": "Ativo",
-					"type": "boolean",
-					"default": true
-				}
-			],
-			"description": "Bônus e penalidades de magias, condições e itens. Somados nas fórmulas."
-		},
-		{
-			"id": "personalidade",
-			"key": "personalidade",
-			"label": "Personalidade e crenças",
-			"type": "longtext"
-		},
-		{
-			"id": "anotacoes",
-			"key": "anotacoes",
-			"label": "Anotações",
-			"type": "longtext"
-		}
-	],
-	layouts: {
-		"full": [
-			{
-				"kind": "section",
-				"title": "Atributos",
-				"columns": 3,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "for"
-					},
-					{
-						"kind": "field",
-						"fieldId": "des"
-					},
-					{
-						"kind": "field",
-						"fieldId": "con"
-					},
-					{
-						"kind": "field",
-						"fieldId": "int"
-					},
-					{
-						"kind": "field",
-						"fieldId": "sab"
-					},
-					{
-						"kind": "field",
-						"fieldId": "car"
-					}
-				],
-				"tab": "Principal",
-				"display": "compacto"
-			},
-			{
-				"kind": "section",
-				"title": "Atributo-chave",
-				"columns": 2,
-				"children": [{
-					"kind": "field",
-					"fieldId": "atributo_chave"
-				}, {
-					"kind": "field",
-					"fieldId": "mod_chave"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Defesas e Percepção",
-				"columns": 2,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "prof_fortitude"
-					},
-					{
-						"kind": "field",
-						"fieldId": "fortitude"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_reflexos"
-					},
-					{
-						"kind": "field",
-						"fieldId": "reflexos"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_vontade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "vontade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_percepcao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "percepcao"
-					}
-				],
-				"display": "linhas"
-			},
-			{
-				"kind": "section",
-				"title": "Perícias",
-				"columns": 2,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "prof_acrobatismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "acrobatismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_arcanismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "arcanismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_atletismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "atletismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_diplomacia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "diplomacia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_enganacao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "enganacao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_furtividade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "furtividade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_intimidacao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "intimidacao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_ladinagem"
-					},
-					{
-						"kind": "field",
-						"fieldId": "ladinagem"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_manufatura"
-					},
-					{
-						"kind": "field",
-						"fieldId": "manufatura"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_medicina"
-					},
-					{
-						"kind": "field",
-						"fieldId": "medicina"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_natureza"
-					},
-					{
-						"kind": "field",
-						"fieldId": "natureza"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_ocultismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "ocultismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_performance"
-					},
-					{
-						"kind": "field",
-						"fieldId": "performance"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_religiao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "religiao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_sobrevivencia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "sobrevivencia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_sociedade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "sociedade"
-					}
-				],
-				"display": "linhas"
-			},
-			{
-				"kind": "section",
-				"title": "Saberes",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "saberes"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Combate",
-				"columns": 4,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "ca"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_armadura"
-					},
-					{
-						"kind": "field",
-						"fieldId": "bonus_armadura"
-					},
-					{
-						"kind": "field",
-						"fieldId": "limite_des"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pv"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pv_temp"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pv_ancestralidade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pv_classe"
-					},
-					{
-						"kind": "field",
-						"fieldId": "moribundo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "ferido"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_classe"
-					},
-					{
-						"kind": "field",
-						"fieldId": "cd_classe"
-					},
-					{
-						"kind": "field",
-						"fieldId": "resistencias_dano",
-						"span": 4
-					},
-					{
-						"kind": "field",
-						"fieldId": "condicoes",
-						"span": 4
-					}
-				],
-				"tab": "Combate"
-			},
-			{
-				"kind": "section",
-				"title": "Escudo",
-				"columns": 4,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "escudo_erguido"
-					},
-					{
-						"kind": "field",
-						"fieldId": "escudo_ca"
-					},
-					{
-						"kind": "field",
-						"fieldId": "escudo_dureza"
-					},
-					{
-						"kind": "field",
-						"fieldId": "escudo_pv"
-					}
-				]
-			},
-			{
-				"kind": "section",
-				"title": "Golpes",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "ataques"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Efeitos temporários",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "efeitos"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Magia",
-				"columns": 3,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "tradicao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "atributo_magia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "mod_magia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "prof_magia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "ataque_magia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "cd_magia"
-					},
-					{
-						"kind": "field",
-						"fieldId": "foco"
-					},
-					{
-						"kind": "field",
-						"fieldId": "magias",
-						"span": 3
-					}
-				],
-				"tab": "Magias"
-			},
-			{
-				"kind": "section",
-				"title": "Equipamento",
-				"columns": 3,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "equipamento",
-						"span": 4
-					},
-					{
-						"kind": "field",
-						"fieldId": "volume_total"
-					},
-					{
-						"kind": "field",
-						"fieldId": "limite_volume"
-					},
-					{
-						"kind": "field",
-						"fieldId": "investidos"
-					},
-					{
-						"kind": "field",
-						"fieldId": "po"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pp"
-					},
-					{
-						"kind": "field",
-						"fieldId": "pc"
-					}
-				],
-				"tab": "Inventário"
-			},
-			{
-				"kind": "section",
-				"title": "Personagem",
-				"columns": 4,
-				"children": [
-					{
-						"kind": "field",
-						"fieldId": "nome",
-						"span": 2
-					},
-					{
-						"kind": "field",
-						"fieldId": "jogador"
-					},
-					{
-						"kind": "field",
-						"fieldId": "nivel"
-					},
-					{
-						"kind": "field",
-						"fieldId": "ancestralidade"
-					},
-					{
-						"kind": "field",
-						"fieldId": "heranca"
-					},
-					{
-						"kind": "field",
-						"fieldId": "formacao"
-					},
-					{
-						"kind": "field",
-						"fieldId": "classe"
-					},
-					{
-						"kind": "field",
-						"fieldId": "tamanho"
-					},
-					{
-						"kind": "field",
-						"fieldId": "deslocamento"
-					},
-					{
-						"kind": "field",
-						"fieldId": "px"
-					},
-					{
-						"kind": "field",
-						"fieldId": "heroismo"
-					},
-					{
-						"kind": "field",
-						"fieldId": "idiomas",
-						"span": 2
-					},
-					{
-						"kind": "field",
-						"fieldId": "tracos",
-						"span": 2
-					}
-				],
-				"tab": "Personagem"
-			},
-			{
-				"kind": "section",
-				"title": "Talentos e habilidades",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "talentos"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Personalidade",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "personalidade"
-				}]
-			},
-			{
-				"kind": "section",
-				"title": "Anotações",
-				"columns": 1,
-				"children": [{
-					"kind": "field",
-					"fieldId": "anotacoes"
-				}],
-				"tab": "Anotações"
-			}
-		],
-		"gmSummary": [
-			"pv",
-			"ca",
-			"percepcao",
-			"fortitude",
-			"reflexos",
-			"vontade",
-			"condicoes",
-			"heroismo",
-			"moribundo"
-		]
-	}
 }].map((json) => SystemTemplateSchema.parse(json));
+[lendas_d20_orc_default].map((json) => ({
+	...SystemTemplateSchema.parse(json),
+	source: "community"
+}));
 //#endregion
 //#region src/issue-form.ts
 /**
