@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-11-05T17:21:32.921Z",
+  "updatedAt": "2026-11-07T13:00:40.000Z",
   "templates": [
     {
       "id": "chamado-cthulhu-7e-fan",
@@ -104,6 +104,13 @@
           "sha256": "5f291b1542e826844a878cfc791a0b67fc36cbb2b4c738114779d80540babd47",
           "size": 60323,
           "publishedAt": "2026-10-28T20:11:55.075Z",
+          "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.2.0",
+          "sha256": "f441f16c9709b8f045ca53a725ad5797089bbcb2dc9da71cef1085e4f7e3a118",
+          "size": 60994,
+          "publishedAt": "2026-11-07T13:00:40.000Z",
           "minAppVersion": "0.2.0"
         }
       ]
