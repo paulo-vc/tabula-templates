@@ -6402,7 +6402,12 @@ var ComputedFieldSchema = object({
 	type: literal("computed"),
 	formula: FormulaSourceSchema,
 	/** Exibe o sinal também em positivos (ex.: "+3"), como em modificadores. */
-	signed: boolean().optional()
+	signed: boolean().optional(),
+	/**
+	* Quantos dados do teste rolar: o valor deste outro campo (ex.: o atributo, na Ordem
+	* Paranormal). Fica o maior; com 0 ou menos, rola dois e fica o menor. Sem isso, um dado.
+	*/
+	checkDiceFrom: IdSchema.optional()
 });
 /** Campos permitidos dentro de itens de lista (sem fórmulas nem listas aninhadas). */
 var ListItemFieldSchema = discriminatedUnion("type", [
@@ -6701,10 +6706,19 @@ function singleCheckDie(checkDice) {
 * Rolagem de um teste: o dado do sistema (ex.: 1d20) mais o modificador. Com vantagem ou
 * desvantagem, dois dados ficando com o maior ou o menor ("2d20kh1+5"), se o dado dos testes
 * for um só; senão, a rolagem fica normal.
+*
+* `count`: quantos dados rolar (o atributo, na Ordem Paranormal), ficando com o maior; com 0
+* ou menos, rola dois (três com -1…) e fica com o menor. Vantagem soma um dado e
+* desvantagem tira um.
 */
-function checkExpression(checkDice, modifier, mode = "normal") {
-	const single = mode === "normal" ? null : singleCheckDie(checkDice);
-	const base = single ? `2d${single.sides}${mode === "vantagem" ? "kh1" : "kl1"}` : checkDice;
+function checkExpression(checkDice, modifier, mode = "normal", count) {
+	const single = mode === "normal" && count === void 0 ? null : singleCheckDie(checkDice);
+	let base = checkDice;
+	if (single && count !== void 0 && Number.isFinite(count)) {
+		const n = Math.trunc(count) + (mode === "vantagem" ? 1 : mode === "desvantagem" ? -1 : 0);
+		const dice = Math.min(20, n >= 1 ? n : 2 - n);
+		base = n === 1 ? `1d${single.sides}` : `${dice}d${single.sides}${n >= 1 ? "kh1" : "kl1"}`;
+	} else if (single && mode !== "normal") base = `2d${single.sides}${mode === "vantagem" ? "kh1" : "kl1"}`;
 	if (modifier === 0) return base;
 	return `${base}${modifier > 0 ? "+" : "-"}${Math.abs(modifier)}`;
 }
@@ -7008,6 +7022,15 @@ function compileTemplate(template) {
 	});
 	const fieldsById = new Map(fields.map((field) => [field.id, field]));
 	const fieldsByKey = new Map(fields.map((field) => [field.key, field]));
+	fields.forEach((field, index) => {
+		if (field.type !== "computed" || field.checkDiceFrom === void 0) return;
+		const source = fieldsById.get(field.checkDiceFrom);
+		if (!source || source.id === field.id || source.type !== "number" && source.type !== "computed") issues.push(issue$1("dados-invalidos", [
+			"fields",
+			index,
+			"checkDiceFrom"
+		], "Os dados do teste precisam vir de outro campo de número ou calculado"));
+	});
 	fields.forEach((field, index) => {
 		const when = field.visibleWhen;
 		if (!when) return;
