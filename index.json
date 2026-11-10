@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-11-07T13:00:40.000Z",
+  "updatedAt": "2026-11-10T01:13:15.000Z",
   "templates": [
     {
       "id": "chamado-cthulhu-7e-fan",
@@ -88,7 +88,7 @@
     {
       "id": "ordem-paranormal-fan",
       "name": "Ordem Paranormal (fã)",
-      "description": "Ficha de agente para Ordem Paranormal RPG: NEX, atributos de 0 a 5, PV/PE/Sanidade calculados pela classe, perícias com grau de treinamento, rituais e inventário. Inclui o suplemento Sobrevivendo ao Horror: classe Sobrevivente (estágios) e a regra opcional de Pontos de Determinação. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
+      "description": "Ficha de agente para Ordem Paranormal RPG: NEX, atributos de 0 a 5, PV/PE/Sanidade calculados pela classe, perícias com grau de treinamento (os testes rolam tantos d20 quanto o atributo e ficam com o maior), rituais e inventário. Inclui o suplemento Sobrevivendo ao Horror: classe Sobrevivente (estágios) e a regra opcional de Pontos de Determinação. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
       "author": "Tabularium",
       "license": "Fan-made (não oficial)",
       "language": "pt-BR",
@@ -111,6 +111,13 @@
           "sha256": "f441f16c9709b8f045ca53a725ad5797089bbcb2dc9da71cef1085e4f7e3a118",
           "size": 60994,
           "publishedAt": "2026-11-07T13:00:40.000Z",
+          "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.3.0",
+          "sha256": "e4859ee917158fdbecf9c314b192bdf0e71bab8e2711f5fd83909543af577976",
+          "size": 61901,
+          "publishedAt": "2026-11-10T01:13:15.000Z",
           "minAppVersion": "0.2.0"
         }
       ]
