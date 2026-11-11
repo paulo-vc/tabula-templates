@@ -492,6 +492,27 @@
           "type": "text"
         },
         {
+          "id": "uso",
+          "key": "uso",
+          "label": "Uso",
+          "type": "select",
+          "options": [
+            {
+              "value": "primaria",
+              "label": "Primária"
+            },
+            {
+              "value": "secundaria",
+              "label": "Secundária"
+            },
+            {
+              "value": "inventario",
+              "label": "No inventário"
+            }
+          ],
+          "default": "primaria"
+        },
+        {
           "id": "traco",
           "key": "traco",
           "label": "Traço",
@@ -673,6 +694,13 @@
           "type": "longtext"
         }
       ]
+    },
+    {
+      "id": "habilidades_classe",
+      "key": "habilidades_classe",
+      "label": "Habilidades de classe e de Esperança",
+      "type": "longtext",
+      "description": "A habilidade de Esperança e as habilidades da sua classe e subclasse."
     },
     {
       "id": "efeitos",
@@ -955,6 +983,10 @@
         "tab": "Cartas de domínio",
         "columns": 1,
         "children": [
+          {
+            "kind": "field",
+            "fieldId": "habilidades_classe"
+          },
           {
             "kind": "field",
             "fieldId": "cartas"

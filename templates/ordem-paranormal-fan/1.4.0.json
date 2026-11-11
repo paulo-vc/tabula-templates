@@ -284,6 +284,14 @@
       "description": "Quantos PE (ou PD, com Determinação) você pode gastar por turno."
     },
     {
+      "id": "dt_rituais",
+      "key": "dt_rituais",
+      "label": "DT de rituais",
+      "type": "computed",
+      "formula": "10 + @pe_rodada + @pre",
+      "description": "10 + limite de PE por turno + Presença."
+    },
+    {
       "id": "san_max",
       "key": "san_max",
       "label": "Sanidade máxima",
@@ -387,6 +395,13 @@
       "default": 0,
       "min": 0,
       "integer": true
+    },
+    {
+      "id": "resistencias",
+      "key": "resistencias",
+      "label": "Resistências",
+      "type": "text",
+      "description": "Ex.: dano de Sangue 5, Medo."
     },
     {
       "id": "condicoes",
@@ -1836,6 +1851,12 @@
           "key": "tipo",
           "label": "Tipo",
           "type": "text"
+        },
+        {
+          "id": "especial",
+          "key": "especial",
+          "label": "Especial",
+          "type": "text"
         }
       ]
     },
@@ -1888,6 +1909,13 @@
           "default": 1,
           "min": 1,
           "max": 4,
+          "integer": true
+        },
+        {
+          "id": "custo",
+          "key": "custo",
+          "label": "Custo (PE)",
+          "type": "number",
           "integer": true
         },
         {
@@ -1961,6 +1989,35 @@
           "type": "text"
         },
         {
+          "id": "categoria",
+          "key": "categoria",
+          "label": "Categoria",
+          "type": "select",
+          "options": [
+            {
+              "value": "0",
+              "label": "0"
+            },
+            {
+              "value": "I",
+              "label": "I"
+            },
+            {
+              "value": "II",
+              "label": "II"
+            },
+            {
+              "value": "III",
+              "label": "III"
+            },
+            {
+              "value": "IV",
+              "label": "IV"
+            }
+          ],
+          "default": "0"
+        },
+        {
           "id": "qtd",
           "key": "qtd",
           "label": "Qtd.",
@@ -2016,9 +2073,47 @@
       "default": "baixo"
     },
     {
+      "id": "limite_cat_I",
+      "key": "limite_cat_i",
+      "label": "Limite de itens I",
+      "type": "number",
+      "integer": true,
+      "default": 0
+    },
+    {
+      "id": "limite_cat_II",
+      "key": "limite_cat_ii",
+      "label": "Limite de itens II",
+      "type": "number",
+      "integer": true,
+      "default": 0
+    },
+    {
+      "id": "limite_cat_III",
+      "key": "limite_cat_iii",
+      "label": "Limite de itens III",
+      "type": "number",
+      "integer": true,
+      "default": 0
+    },
+    {
+      "id": "limite_cat_IV",
+      "key": "limite_cat_iv",
+      "label": "Limite de itens IV",
+      "type": "number",
+      "integer": true,
+      "default": 0
+    },
+    {
       "id": "aparencia",
       "key": "aparencia",
       "label": "Aparência",
+      "type": "longtext"
+    },
+    {
+      "id": "personalidade",
+      "key": "personalidade",
+      "label": "Personalidade",
       "type": "longtext"
     },
     {
@@ -2153,6 +2248,11 @@
           {
             "kind": "field",
             "fieldId": "condicoes"
+          },
+          {
+            "kind": "field",
+            "fieldId": "resistencias",
+            "span": 3
           }
         ]
       },
@@ -2589,6 +2689,10 @@
         "children": [
           {
             "kind": "field",
+            "fieldId": "dt_rituais"
+          },
+          {
+            "kind": "field",
             "fieldId": "rituais"
           }
         ]
@@ -2611,6 +2715,22 @@
           {
             "kind": "field",
             "fieldId": "limite_credito"
+          },
+          {
+            "kind": "field",
+            "fieldId": "limite_cat_I"
+          },
+          {
+            "kind": "field",
+            "fieldId": "limite_cat_II"
+          },
+          {
+            "kind": "field",
+            "fieldId": "limite_cat_III"
+          },
+          {
+            "kind": "field",
+            "fieldId": "limite_cat_IV"
           }
         ]
       },
@@ -2622,6 +2742,10 @@
           {
             "kind": "field",
             "fieldId": "aparencia"
+          },
+          {
+            "kind": "field",
+            "fieldId": "personalidade"
           },
           {
             "kind": "field",

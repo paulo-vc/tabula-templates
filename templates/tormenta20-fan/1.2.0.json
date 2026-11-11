@@ -308,6 +308,18 @@
       "integer": true
     },
     {
+      "id": "armadura_nome",
+      "key": "armadura_nome",
+      "label": "Armadura",
+      "type": "text"
+    },
+    {
+      "id": "escudo_nome",
+      "key": "escudo_nome",
+      "label": "Escudo",
+      "type": "text"
+    },
+    {
       "id": "usa_des",
       "key": "usa_des",
       "label": "Soma Destreza na Defesa",
@@ -936,6 +948,28 @@
       "signed": true
     },
     {
+      "id": "oficio2_treinada",
+      "key": "oficio2_treinada",
+      "label": "Ofício (2º) — treinada",
+      "type": "boolean"
+    },
+    {
+      "id": "oficio2_outros",
+      "key": "oficio2_outros",
+      "label": "Ofício (2º) — outros",
+      "type": "number",
+      "default": 0,
+      "integer": true
+    },
+    {
+      "id": "oficio2",
+      "key": "oficio2",
+      "label": "Ofício, 2º (INT)",
+      "type": "computed",
+      "formula": "@meio_nivel + @int + @treino * @oficio2_treinada + @oficio2_outros",
+      "signed": true
+    },
+    {
       "id": "percepcao_treinada",
       "key": "percepcao_treinada",
       "label": "Percepção — treinada",
@@ -1361,6 +1395,13 @@
       "key": "anotacoes",
       "label": "Anotações",
       "type": "longtext"
+    },
+    {
+      "id": "proficiencias",
+      "key": "proficiencias",
+      "label": "Proficiências e outras características",
+      "type": "longtext",
+      "description": "Armas e armaduras que você sabe usar, idiomas e outras características."
     }
   ],
   "layouts": {
@@ -1497,6 +1538,14 @@
         "title": "Defesa",
         "columns": 2,
         "children": [
+          {
+            "kind": "field",
+            "fieldId": "armadura_nome"
+          },
+          {
+            "kind": "field",
+            "fieldId": "escudo_nome"
+          },
           {
             "kind": "field",
             "fieldId": "defesa"
@@ -1819,6 +1868,18 @@
           },
           {
             "kind": "field",
+            "fieldId": "oficio2_treinada"
+          },
+          {
+            "kind": "field",
+            "fieldId": "oficio2_outros"
+          },
+          {
+            "kind": "field",
+            "fieldId": "oficio2"
+          },
+          {
+            "kind": "field",
             "fieldId": "percepcao_treinada"
           },
           {
@@ -1924,6 +1985,10 @@
           {
             "kind": "field",
             "fieldId": "poderes"
+          },
+          {
+            "kind": "field",
+            "fieldId": "proficiencias"
           }
         ]
       },
