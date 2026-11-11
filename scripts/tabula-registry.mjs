@@ -6489,6 +6489,20 @@ var LayoutNodeSchema = lazy(() => discriminatedUnion("kind", [object({
 	secondary: IdSchema.optional()
 })]));
 var LayoutSchema = array(LayoutNodeSchema).max(LIMITS.layoutNodes);
+/**
+* Cor de destaque da ficha e da campanha do sistema (botões, abas, foco), entre tons que o app
+* já ajusta para os dois temas. Sem cor, vale o cobalto do app.
+*/
+var SYSTEM_ACCENTS = [
+	"cobalto",
+	"violeta",
+	"magenta",
+	"vermelho",
+	"laranja",
+	"ambar",
+	"verde",
+	"ciano"
+];
 /** De onde o template veio: embutido no app, repositório da comunidade ou criado localmente. */
 var TemplateSourceSchema = _enum([
 	"builtin",
@@ -6527,6 +6541,13 @@ var SystemTemplateSchema = object({
 	bonusTab: string().trim().min(1).max(40).optional(),
 	/** Ícone do sistema (imagem pequena, embutida), nas listas de sistemas, fichas e campanhas. */
 	icon: SystemIconSchema.optional(),
+	/**
+	* Nos testes, o menor resultado é o melhor (rolar abaixo do valor, como no 1d100 do Chamado
+	* de Cthulhu): a vantagem fica com o menor dado, e o crítico é a face 1.
+	*/
+	lowerIsBetter: boolean().optional(),
+	/** Cor de destaque da ficha e da campanha (ex.: laranja na Ordem Paranormal). */
+	accent: _enum(SYSTEM_ACCENTS).optional(),
 	/** Versão mínima do app capaz de abrir este template. */
 	minAppVersion: SemVerSchema.optional(),
 	/** Códice: páginas de consulta (habilidades, regras, itens…), lidas por toda a mesa. */
@@ -6711,14 +6732,16 @@ function singleCheckDie(checkDice) {
 * ou menos, rola dois (três com -1…) e fica com o menor. Vantagem soma um dado e
 * desvantagem tira um.
 */
-function checkExpression(checkDice, modifier, mode = "normal", count) {
+function checkExpression(checkDice, modifier, mode = "normal", count, lowerIsBetter = false) {
 	const single = mode === "normal" && count === void 0 ? null : singleCheckDie(checkDice);
+	const best = lowerIsBetter ? "kl1" : "kh1";
+	const worst = lowerIsBetter ? "kh1" : "kl1";
 	let base = checkDice;
 	if (single && count !== void 0 && Number.isFinite(count)) {
 		const n = Math.trunc(count) + (mode === "vantagem" ? 1 : mode === "desvantagem" ? -1 : 0);
 		const dice = Math.min(20, n >= 1 ? n : 2 - n);
-		base = n === 1 ? `1d${single.sides}` : `${dice}d${single.sides}${n >= 1 ? "kh1" : "kl1"}`;
-	} else if (single && mode !== "normal") base = `2d${single.sides}${mode === "vantagem" ? "kh1" : "kl1"}`;
+		base = n === 1 ? `1d${single.sides}` : `${dice}d${single.sides}${n >= 1 ? best : worst}`;
+	} else if (single && mode !== "normal") base = `2d${single.sides}${mode === "vantagem" ? best : worst}`;
 	if (modifier === 0) return base;
 	return `${base}${modifier > 0 ? "+" : "-"}${Math.abs(modifier)}`;
 }
@@ -10034,10 +10057,11 @@ var lendas_d20_orc_default = {
 */
 var BUILTIN_TEMPLATES = [{
 	id: "dnd5e-srd",
-	version: "1.9.0",
+	version: "1.10.0",
 	name: "D&D 5ª Edição (SRD 5.1)",
 	description: "Ficha para personagens de D&D 5ª edição, com opção para as regras de 2024 (5.5): maestria de armas, talento de origem e a Exaustão nova. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium. This work includes material from the System Reference Document 5.2 (\"SRD 5.2\") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
 	author: "Tabularium",
+	accent: "violeta",
 	license: "CC-BY-4.0",
 	language: "pt-BR",
 	tags: [
