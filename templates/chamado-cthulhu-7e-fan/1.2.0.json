@@ -5,6 +5,7 @@
   "description": "Ficha de investigador para Call of Cthulhu 7ª edição: características com metade e quinto, PV, PM, Sanidade (limitada pelos Mitos), Sorte, Movimento e Corpo calculados, perícias com os valores-base. Os testes são em 1d100: role igual ou abaixo do valor. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
   "author": "Tabularium",
   "accent": "verde",
+  "headingFont": "maquina",
   "lowerIsBetter": true,
   "license": "Fan-made (não oficial)",
   "language": "pt-BR",
@@ -285,7 +286,8 @@
       "label": "Pontos de Vida",
       "type": "resource",
       "max": "@pv_max",
-      "default": 10
+      "default": 10,
+      "color": "vermelho"
     },
     {
       "id": "pm_max",
@@ -300,7 +302,8 @@
       "label": "Pontos de Magia",
       "type": "resource",
       "max": "@pm_max",
-      "default": 10
+      "default": 10,
+      "color": "ciano"
     },
     {
       "id": "mitos",
@@ -326,7 +329,8 @@
       "description": "Começa igual ao POD.",
       "type": "resource",
       "max": "@san_max",
-      "default": 50
+      "default": 50,
+      "color": "violeta"
     },
     {
       "id": "san_inicial",

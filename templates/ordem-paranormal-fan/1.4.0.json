@@ -5,6 +5,7 @@
   "description": "Ficha de agente para Ordem Paranormal RPG: NEX, atributos de 0 a 5, PV/PE/Sanidade calculados pela classe, perícias com grau de treinamento (os testes rolam tantos d20 quanto o atributo e ficam com o maior), rituais e inventário. Inclui o suplemento Sobrevivendo ao Horror: classe Sobrevivente (estágios) e a regra opcional de Pontos de Determinação. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
   "author": "Tabularium",
   "accent": "laranja",
+  "headingFont": "maquina",
   "license": "Fan-made (não oficial)",
   "language": "pt-BR",
   "tags": [
@@ -171,7 +172,8 @@
       "default": 1,
       "min": 0,
       "max": 5,
-      "integer": true
+      "integer": true,
+      "rollsDice": true
     },
     {
       "id": "for",
@@ -182,7 +184,8 @@
       "default": 1,
       "min": 0,
       "max": 5,
-      "integer": true
+      "integer": true,
+      "rollsDice": true
     },
     {
       "id": "int",
@@ -193,7 +196,8 @@
       "default": 1,
       "min": 0,
       "max": 5,
-      "integer": true
+      "integer": true,
+      "rollsDice": true
     },
     {
       "id": "pre",
@@ -204,7 +208,8 @@
       "default": 1,
       "min": 0,
       "max": 5,
-      "integer": true
+      "integer": true,
+      "rollsDice": true
     },
     {
       "id": "vig",
@@ -215,7 +220,8 @@
       "default": 1,
       "min": 0,
       "max": 5,
-      "integer": true
+      "integer": true,
+      "rollsDice": true
     },
     {
       "id": "pv_max",
@@ -238,7 +244,8 @@
       "label": "Pontos de Vida",
       "type": "resource",
       "max": "@pv_max",
-      "default": 21
+      "default": 21,
+      "color": "vermelho"
     },
     {
       "id": "pe_max",
@@ -273,7 +280,8 @@
       "visibleWhen": {
         "field": "usa_pd",
         "value": false
-      }
+      },
+      "color": "laranja"
     },
     {
       "id": "pe_rodada",
@@ -324,7 +332,8 @@
       "visibleWhen": {
         "field": "usa_pd",
         "value": false
-      }
+      },
+      "color": "violeta"
     },
     {
       "id": "pd_max",
@@ -360,14 +369,16 @@
       "visibleWhen": {
         "field": "usa_pd",
         "value": true
-      }
+      },
+      "color": "ciano"
     },
     {
       "id": "defesa",
       "key": "defesa",
       "label": "Defesa",
       "type": "computed",
-      "formula": "10 + @agi + @defesa_equip + @defesa_outros"
+      "formula": "10 + @agi + @defesa_equip + @defesa_outros",
+      "emblem": "escudo"
     },
     {
       "id": "defesa_equip",
@@ -2193,7 +2204,7 @@
         "kind": "section",
         "title": "Atributos",
         "columns": 3,
-        "display": "compacto",
+        "display": "circulo",
         "width": "metade",
         "children": [
           {

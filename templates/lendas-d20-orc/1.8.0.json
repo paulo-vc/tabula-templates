@@ -5,6 +5,7 @@
   "description": "Ficha de personagem para Pathfinder 2ª edição (Remaster): atributos como modificadores, graus de proficiência (destreinado a lendário) que somam o nível, salvaguardas, Percepção, CA com limite de Destreza e escudo, PV por ancestralidade e classe, magia, condições e Volume. Ficha não oficial feita por fãs. Use com o livro de regras. Pathfinder 2e (fã) uses trademarks and/or copyrights owned by Paizo Inc., used under Paizo's Community Use Policy (paizo.com/licenses/communityuse). We are expressly prohibited from charging you to use or access this content. Pathfinder 2e (fã) is not published, endorsed, or specifically approved by Paizo. For more information about Paizo Inc. and Paizo products, visit paizo.com. ORC Notice: This product is licensed under the ORC License held in the Library of Congress at TX 9-307-067 and available online at various locations including www.azoralaw.com/orclicense, www.gencon.com/orclicense and others. All warranties are disclaimed as set forth therein. Attribution: This product is based on the following Licensed Material: Player Core © 2023 Paizo Inc., Designed by Logan Bonner, Jason Bulmahn, Stephen Radney-MacFarland, and Mark Seifter. Expressed Material: esta ficha (layout e textos) não é material licenciado.",
   "author": "Tabularium",
   "accent": "ciano",
+  "headingFont": "serifa",
   "license": "Fan-made (não oficial): Paizo Community Use Policy e ORC",
   "language": "pt-BR",
   "tags": [
@@ -123,7 +124,8 @@
       "type": "resource",
       "max": "3",
       "default": 1,
-      "display": "marcadores"
+      "display": "marcadores",
+      "color": "ambar"
     },
     {
       "id": "idiomas",
@@ -418,7 +420,8 @@
       "label": "Classe de Armadura",
       "description": "10 + Destreza (até o limite da armadura) + proficiência + armadura + escudo erguido + efeitos.",
       "type": "computed",
-      "formula": "10 + min(@des, @limite_des) + if(@prof_armadura > 0, @prof_armadura + @nivel, 0) + @bonus_armadura + @escudo_erguido * @escudo_ca"
+      "formula": "10 + min(@des, @limite_des) + if(@prof_armadura > 0, @prof_armadura + @nivel, 0) + @bonus_armadura + @escudo_erguido * @escudo_ca",
+      "emblem": "escudo"
     },
     {
       "id": "prof_armadura",
@@ -479,7 +482,8 @@
       "label": "Pontos de Vida",
       "type": "resource",
       "max": "@pv_ancestralidade + (@pv_classe + @con) * @nivel",
-      "default": 10
+      "default": 10,
+      "color": "vermelho"
     },
     {
       "id": "pv_temp",
@@ -1572,7 +1576,8 @@
       "type": "resource",
       "max": "3",
       "default": 0,
-      "display": "marcadores"
+      "display": "marcadores",
+      "color": "ciano"
     },
     {
       "id": "magias",
@@ -1819,12 +1824,13 @@
             "fieldId": "car"
           }
         ],
-        "display": "compacto"
+        "display": "circulo",
+        "width": "metade"
       },
       {
         "kind": "section",
         "title": "Atributo-chave",
-        "columns": 2,
+        "columns": 1,
         "children": [
           {
             "kind": "field",
@@ -1834,7 +1840,8 @@
             "kind": "field",
             "fieldId": "mod_chave"
           }
-        ]
+        ],
+        "width": "metade"
       },
       {
         "kind": "section",

@@ -5,6 +5,7 @@
   "description": "Ficha para Tormenta20: atributos somados direto, perícias com metade do nível e treinamento (+2/+4/+6), PV e PM pela classe, Defesa, ataques, magias e poderes. Ficha não oficial feita por fãs, sem vínculo com os detentores dos direitos. Use com o livro de regras.",
   "author": "Tabularium",
   "accent": "vermelho",
+  "headingFont": "serifa",
   "license": "Fan-made (não oficial)",
   "language": "pt-BR",
   "tags": [
@@ -235,7 +236,8 @@
       "label": "Pontos de Vida",
       "type": "resource",
       "max": "@pv_max",
-      "default": 12
+      "default": 12,
+      "color": "vermelho"
     },
     {
       "id": "pm_nivel",
@@ -269,7 +271,8 @@
       "label": "Pontos de Mana",
       "type": "resource",
       "max": "@pm_max",
-      "default": 4
+      "default": 4,
+      "color": "cobalto"
     },
     {
       "id": "armadura",
@@ -332,7 +335,8 @@
       "key": "defesa",
       "label": "Defesa",
       "type": "computed",
-      "formula": "10 + @des * @usa_des + @armadura + @escudo + @defesa_outros"
+      "formula": "10 + @des * @usa_des + @armadura + @escudo + @defesa_outros",
+      "emblem": "escudo"
     },
     {
       "id": "condicoes",
@@ -1485,52 +1489,7 @@
             "fieldId": "car"
           }
         ],
-        "display": "compacto"
-      },
-      {
-        "kind": "section",
-        "title": "Vida e Mana",
-        "columns": 2,
-        "children": [
-          {
-            "kind": "field",
-            "fieldId": "pv",
-            "span": 2
-          },
-          {
-            "kind": "field",
-            "fieldId": "pv_max"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pv_inicial"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pv_nivel"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pv_bonus"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pm",
-            "span": 2
-          },
-          {
-            "kind": "field",
-            "fieldId": "pm_max"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pm_nivel"
-          },
-          {
-            "kind": "field",
-            "fieldId": "pm_bonus"
-          }
-        ],
+        "display": "circulo",
         "width": "metade"
       },
       {
@@ -1577,6 +1536,51 @@
           }
         ],
         "width": "metade"
+      },
+      {
+        "kind": "section",
+        "title": "Vida e Mana",
+        "columns": 2,
+        "children": [
+          {
+            "kind": "field",
+            "fieldId": "pv",
+            "span": 2
+          },
+          {
+            "kind": "field",
+            "fieldId": "pv_max"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pv_inicial"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pv_nivel"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pv_bonus"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pm",
+            "span": 2
+          },
+          {
+            "kind": "field",
+            "fieldId": "pm_max"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pm_nivel"
+          },
+          {
+            "kind": "field",
+            "fieldId": "pm_bonus"
+          }
+        ]
       },
       {
         "kind": "section",

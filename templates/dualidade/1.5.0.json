@@ -5,6 +5,7 @@
   "description": "Ficha compatível com o sistema Daggerheart™: traços, Evasão, limiares de dano, Esperança, Estresse, armas e cartas de domínio. Ficha não oficial da comunidade. This product includes materials from the Daggerheart System Reference Document 1.0, © Critical Role, LLC, under the terms of the Darrington Press Community Gaming License. More information at www.daggerheart.com. Darrington Press™ and the Darrington Press authorized work logo are trademarks of Critical Role, LLC and used with permission.",
   "author": "Tabularium",
   "accent": "ambar",
+  "headingFont": "serifa",
   "license": "DPCGL",
   "language": "pt-BR",
   "tags": [
@@ -317,7 +318,8 @@
       "label": "Evasão",
       "description": "A CD dos ataques contra você.",
       "type": "computed",
-      "formula": "@evasao_base + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"evasao\"))"
+      "formula": "@evasao_base + sum(@efeitos.valor * @efeitos.ativo * is(@efeitos.alvo, \"evasao\"))",
+      "emblem": "escudo"
     },
     {
       "id": "evasao_base",
@@ -396,7 +398,8 @@
       "type": "resource",
       "max": "@pv_max",
       "default": 6,
-      "display": "marcadores"
+      "display": "marcadores",
+      "color": "vermelho"
     },
     {
       "id": "pv_max",
@@ -415,7 +418,8 @@
       "type": "resource",
       "max": "@estresse_max",
       "default": 0,
-      "display": "marcadores"
+      "display": "marcadores",
+      "color": "violeta"
     },
     {
       "id": "estresse_max",
@@ -434,7 +438,8 @@
       "type": "resource",
       "max": "6",
       "default": 2,
-      "display": "marcadores"
+      "display": "marcadores",
+      "color": "ambar"
     },
     {
       "id": "condicoes",
@@ -865,12 +870,13 @@
             "secondary": "conhecimento_base"
           }
         ],
-        "display": "compacto"
+        "display": "circulo",
+        "width": "metade"
       },
       {
         "kind": "section",
         "title": "Defesa",
-        "columns": 3,
+        "columns": 2,
         "children": [
           {
             "kind": "field",
@@ -941,8 +947,7 @@
             "fieldId": "condicoes",
             "span": 3
           }
-        ],
-        "width": "metade"
+        ]
       },
       {
         "kind": "section",
