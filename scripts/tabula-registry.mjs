@@ -6128,6 +6128,59 @@ function collectRefs(node, into = []) {
 	}
 	return into;
 }
+var CREATURE_TEXT_LIMIT = 8e3;
+var CREATURE_HP_MAX = 99999;
+var ShortTextSchema = string().trim().max(60);
+/** Rolagem de um ataque ("1d20+4", "2d6+3"). Conferida contra os dados do sistema ao compilar. */
+var RollTextSchema = string().trim().max(60);
+var CreatureStatSchema = object({
+	label: string().trim().min(1, "Obrigatório").max(40),
+	value: ShortTextSchema
+});
+var CreatureAttackSchema = object({
+	id: IdSchema,
+	name: LabelSchema,
+	/** Rolagem para acertar (ex.: "1d20+4"). */
+	roll: RollTextSchema.optional(),
+	/** Rolagem de dano (ex.: "1d6+2"). */
+	damage: RollTextSchema.optional(),
+	/** Tipo de dano, alcance… ("cortante, 1,5 m"). */
+	notes: string().trim().max(200).optional()
+});
+var BestiarySchema = array(object({
+	id: IdSchema,
+	name: LabelSchema,
+	/** Tipo, tamanho, nível ou ND ("Humanoide pequeno, ND 1/4"). */
+	kind: ShortTextSchema.optional(),
+	hp: number().int().min(1).max(CREATURE_HP_MAX),
+	/** Como no combate: número ("15"), modificador ("+2", rola o dado dos testes) ou rolagem. */
+	initiative: string().trim().max(20).optional(),
+	stats: array(CreatureStatSchema).max(16),
+	attacks: array(CreatureAttackSchema).max(12),
+	/** Habilidades, táticas, notas. */
+	text: string().max(CREATURE_TEXT_LIMIT).optional()
+})).max(200);
+/** Estado aproximado que os jogadores veem de uma criatura no combate. */
+var WOUND_CONDITIONS = [
+	"ilesa",
+	"ferida",
+	"muito-ferida",
+	"caida"
+];
+/**
+* Página do códice do sistema: o que o autor quer que a mesa consulte (habilidades, regras,
+* itens, magias, condições…). O texto usa uma formatação simples (ver `parseCodexText`).
+* `gmOnly` esconde a página de quem não mestra o sistema; não é segredo de verdade: quem
+* abre o arquivo do sistema vê tudo.
+*/
+var CodexPageSchema = object({
+	id: IdSchema,
+	title: LabelSchema,
+	/** Agrupa as páginas na lista (ex.: "Habilidades", "Regras"). Sem categoria, ficam em "Geral". */
+	category: string().trim().max(40).optional(),
+	body: string().max(2e4),
+	gmOnly: boolean().optional()
+});
 //#endregion
 //#region ../../packages/domain/src/dice/custom.ts
 var DieIdSchema = string().regex(/^[A-Za-z][A-Za-z0-9]{0,15}$/);
@@ -6259,7 +6312,16 @@ var fieldBase = {
 	label: LabelSchema,
 	description: DescriptionSchema.optional(),
 	/** `gm`: visível apenas para o Mestre durante a sessão. */
-	visibility: _enum(["all", "gm"]).optional()
+	visibility: _enum(["all", "gm"]).optional(),
+	/**
+	* Só aparece quando um campo sim/não da ficha está marcado (`value: true`) ou desmarcado
+	* (`false`): uma regra opcional que troca campos, como a Determinação no lugar de PE e
+	* Sanidade. O valor continua guardado e nas fórmulas.
+	*/
+	visibleWhen: object({
+		field: IdSchema,
+		value: boolean()
+	}).optional()
 };
 /**
 * Mostra um número (ou o valor atual de um recurso) como marcadores clicáveis, como as
@@ -6268,6 +6330,15 @@ var fieldBase = {
 * ao campo numérico.
 */
 var FIELD_DISPLAYS = ["marcadores"];
+/**
+* O que um número ou recurso recupera num descanso. `amount`: `tudo` (o recurso enche; o
+* número volta ao padrão), `metade` (o recurso ganha metade do máximo, no mínimo 1) ou um
+* passo (ex.: -1 na exaustão). Sem `amount`, `tudo`.
+*/
+var RestRecoverySchema = object({
+	rest: _enum(["curto", "longo"]),
+	amount: union([_enum(["tudo", "metade"]), number().int().min(-1e3).max(1e3)]).optional()
+});
 var NumberFieldSchema = object({
 	...fieldBase,
 	type: literal("number"),
@@ -6275,7 +6346,9 @@ var NumberFieldSchema = object({
 	min: FiniteNumberSchema.optional(),
 	max: FiniteNumberSchema.optional(),
 	integer: boolean().optional(),
-	display: _enum(FIELD_DISPLAYS).optional()
+	display: _enum(FIELD_DISPLAYS).optional(),
+	/** O que volta num descanso (ex.: os testes contra a morte zeram). */
+	recover: RestRecoverySchema.optional()
 });
 var TextFieldSchema = object({
 	...fieldBase,
@@ -6319,7 +6392,9 @@ var ResourceFieldSchema = object({
 	max: FormulaSourceSchema.optional(),
 	/** Valor inicial (atual e, se não houver fórmula, também do máximo). */
 	default: FiniteNumberSchema.optional(),
-	display: _enum(FIELD_DISPLAYS).optional()
+	display: _enum(FIELD_DISPLAYS).optional(),
+	/** O que volta num descanso (ex.: os PV enchem no descanso longo). */
+	recover: RestRecoverySchema.optional()
 });
 /** Campo derivado: nunca é armazenado na ficha, é sempre calculado. */
 var ComputedFieldSchema = object({
@@ -6327,7 +6402,12 @@ var ComputedFieldSchema = object({
 	type: literal("computed"),
 	formula: FormulaSourceSchema,
 	/** Exibe o sinal também em positivos (ex.: "+3"), como em modificadores. */
-	signed: boolean().optional()
+	signed: boolean().optional(),
+	/**
+	* Quantos dados do teste rolar: o valor deste outro campo (ex.: o atributo, na Ordem
+	* Paranormal). Fica o maior; com 0 ou menos, rola dois e fica o menor. Sem isso, um dado.
+	*/
+	checkDiceFrom: IdSchema.optional()
 });
 /** Campos permitidos dentro de itens de lista (sem fórmulas nem listas aninhadas). */
 var ListItemFieldSchema = discriminatedUnion("type", [
@@ -6400,7 +6480,8 @@ var LayoutNodeSchema = lazy(() => discriminatedUnion("kind", [object({
 	columns: ColumnsSchema,
 	children: array(LayoutNodeSchema).max(LIMITS.layoutNodes),
 	tab: string().trim().min(1).max(40).optional(),
-	display: _enum(SECTION_DISPLAYS).optional()
+	display: _enum(SECTION_DISPLAYS).optional(),
+	width: literal("metade").optional()
 }), object({
 	kind: literal("field"),
 	fieldId: IdSchema,
@@ -6448,6 +6529,12 @@ var SystemTemplateSchema = object({
 	icon: SystemIconSchema.optional(),
 	/** Versão mínima do app capaz de abrir este template. */
 	minAppVersion: SemVerSchema.optional(),
+	/** Códice: páginas de consulta (habilidades, regras, itens…), lidas por toda a mesa. */
+	codex: array(CodexPageSchema).max(200).optional(),
+	/** Criaturas prontas do sistema, para o Mestre usar no combate ou copiar para a campanha. */
+	bestiary: BestiarySchema.optional(),
+	/** Características de uma criatura nova (ex.: "CA", "Deslocamento"); sem isso, as padrão. */
+	creatureStats: array(string().trim().min(1).max(40)).max(16).optional(),
 	fields: array(FieldDefSchema).min(1).max(LIMITS.fields),
 	layouts: object({
 		/** Ficha completa. */
@@ -6608,6 +6695,33 @@ function printDice(expression) {
 function faceValue(term, face) {
 	return term.custom ? term.custom.faces[face - 1]?.value ?? 0 : face;
 }
+/** O dado dos testes, se for um só dado comum ("1d20"): só aí valem vantagem e crítico. */
+function singleCheckDie(checkDice) {
+	const parsed = parseDice(checkDice);
+	if (!parsed.ok || parsed.value.length !== 1) return null;
+	const [term] = parsed.value;
+	return term?.kind === "dados" && term.sign === 1 && term.count === 1 && !term.keep ? term : null;
+}
+/**
+* Rolagem de um teste: o dado do sistema (ex.: 1d20) mais o modificador. Com vantagem ou
+* desvantagem, dois dados ficando com o maior ou o menor ("2d20kh1+5"), se o dado dos testes
+* for um só; senão, a rolagem fica normal.
+*
+* `count`: quantos dados rolar (o atributo, na Ordem Paranormal), ficando com o maior; com 0
+* ou menos, rola dois (três com -1…) e fica com o menor. Vantagem soma um dado e
+* desvantagem tira um.
+*/
+function checkExpression(checkDice, modifier, mode = "normal", count) {
+	const single = mode === "normal" && count === void 0 ? null : singleCheckDie(checkDice);
+	let base = checkDice;
+	if (single && count !== void 0 && Number.isFinite(count)) {
+		const n = Math.trunc(count) + (mode === "vantagem" ? 1 : mode === "desvantagem" ? -1 : 0);
+		const dice = Math.min(20, n >= 1 ? n : 2 - n);
+		base = n === 1 ? `1d${single.sides}` : `${dice}d${single.sides}${n >= 1 ? "kh1" : "kl1"}`;
+	} else if (single && mode !== "normal") base = `2d${single.sides}${mode === "vantagem" ? "kh1" : "kl1"}`;
+	if (modifier === 0) return base;
+	return `${base}${modifier > 0 ? "+" : "-"}${Math.abs(modifier)}`;
+}
 //#endregion
 //#region ../../packages/domain/src/graph/topological-sort.ts
 /**
@@ -6650,6 +6764,61 @@ function topologicalSort(dependencies) {
 		}
 	}
 	return ok(order);
+}
+//#endregion
+//#region ../../packages/domain/src/initiative/input.ts
+/**
+* Interpreta a iniciativa digitada pelo Mestre para uma criatura:
+* - um número ("15") é o valor;
+* - um modificador ("+3", "-1") rola o dado dos testes do sistema com ele ("1d20+3");
+* - uma rolagem ("1d20+3", "2d12") é rolada como está.
+* `null` se não for nenhum desses.
+*/
+function parseInitiativeInput(text, checkDice = "1d20", dice = []) {
+	const input = text.trim().replace(/\s+/g, "");
+	if (/^-?\d{1,3}$/.test(input)) return {
+		kind: "valor",
+		value: Number(input)
+	};
+	const modifier = /^[+-]\d{1,3}$/.test(input) ? Number(input) : null;
+	const expression = modifier !== null ? checkExpression(checkDice, modifier) : input.toLowerCase();
+	if (!/d/.test(expression)) return null;
+	return parseDice(expression, dice).ok ? {
+		kind: "rolar",
+		expression
+	} : null;
+}
+//#endregion
+//#region ../../packages/domain/src/bestiary/check.ts
+/**
+* Problemas de uma criatura que o formato não pega: iniciativa e rolagens dos ataques que
+* não rolam com os dados do sistema. `path` é relativo à criatura.
+*/
+function creatureProblems(creature, checkDice, dice) {
+	const problems = [];
+	const initiative = creature.initiative?.trim();
+	if (initiative && !parseInitiativeInput(initiative, checkDice, dice)) problems.push({
+		code: "iniciativa-de-criatura-invalida",
+		path: ["initiative"],
+		message: `${creature.name}: iniciativa inválida ("${initiative}"). Use um número (15), um modificador (+2) ou uma rolagem (1d20+2)`
+	});
+	creature.attacks.forEach((attack, index) => {
+		for (const property of ["roll", "damage"]) {
+			const roll = attack[property]?.trim();
+			if (!roll) continue;
+			const parsed = parseDice(roll, dice);
+			if (!parsed.ok) problems.push({
+				code: "rolagem-de-criatura-invalida",
+				path: [
+					"attacks",
+					index,
+					property
+				],
+				message: `${creature.name}, ${attack.name}: ${parsed.error.message}`
+			});
+		}
+	});
+	return problems;
 }
 //#endregion
 //#region ../../packages/domain/src/template/check-formula.ts
@@ -6731,6 +6900,11 @@ function checkFormula(ast, fieldsByKey) {
 }
 //#endregion
 //#region ../../packages/domain/src/template/compile.ts
+/**
+* Tamanho máximo do sistema (JSON, em bytes). O Mestre o envia aos jogadores numa mensagem da
+* sessão (até 512 KB): o códice e o bestiário têm de caber junto com o resto.
+*/
+var TEMPLATE_MAX_BYTES = 460800;
 var issue$1 = (code, path, message) => ({
 	code,
 	path,
@@ -6848,6 +7022,26 @@ function compileTemplate(template) {
 	});
 	const fieldsById = new Map(fields.map((field) => [field.id, field]));
 	const fieldsByKey = new Map(fields.map((field) => [field.key, field]));
+	fields.forEach((field, index) => {
+		if (field.type !== "computed" || field.checkDiceFrom === void 0) return;
+		const source = fieldsById.get(field.checkDiceFrom);
+		if (!source || source.id === field.id || source.type !== "number" && source.type !== "computed") issues.push(issue$1("dados-invalidos", [
+			"fields",
+			index,
+			"checkDiceFrom"
+		], "Os dados do teste precisam vir de outro campo de número ou calculado"));
+	});
+	fields.forEach((field, index) => {
+		const when = field.visibleWhen;
+		if (!when) return;
+		const target = fieldsById.get(when.field);
+		if (target?.type !== "boolean" || target.id === field.id) issues.push(issue$1("condicao-invalida", [
+			"fields",
+			index,
+			"visibleWhen",
+			"field"
+		], "A condição precisa ser outro campo sim/não da ficha"));
+	});
 	const formulas = [];
 	const dependencies = /* @__PURE__ */ new Map();
 	const byNode = /* @__PURE__ */ new Map();
@@ -6929,6 +7123,7 @@ function compileTemplate(template) {
 		const field = fieldsById.get(template.initiative);
 		if (!field || field.type !== "number" && field.type !== "computed") issues.push(issue$1("iniciativa-invalida", ["initiative"], "A iniciativa precisa ser um campo de número ou calculado"));
 	}
+	validateCodexAndBestiary(template, issues);
 	const fieldIds = new Set(fieldsById.keys());
 	validateLayout(template.layouts.full, ["layouts", "full"], fieldIds, issues);
 	if (template.layouts.compact) validateLayout(template.layouts.compact, ["layouts", "compact"], fieldIds, issues);
@@ -6946,6 +7141,46 @@ function compileTemplate(template) {
 		fieldsByKey,
 		formulas
 	});
+}
+function validateCodexAndBestiary(template, issues) {
+	const pageIds = /* @__PURE__ */ new Set();
+	const titles = /* @__PURE__ */ new Set();
+	template.codex?.forEach((page, index) => {
+		if (pageIds.has(page.id)) issues.push(issue$1("pagina-repetida", [
+			"codex",
+			index,
+			"id"
+		], `Página repetida: "${page.id}"`));
+		pageIds.add(page.id);
+		const title = page.title.trim().toLowerCase();
+		if (titles.has(title)) issues.push(issue$1("titulo-repetido", [
+			"codex",
+			index,
+			"title"
+		], `Duas páginas do códice se chamam "${page.title}"`));
+		titles.add(title);
+	});
+	const creatureIds = /* @__PURE__ */ new Set();
+	template.bestiary?.forEach((creature, index) => {
+		const path = ["bestiary", index];
+		if (creatureIds.has(creature.id)) issues.push(issue$1("criatura-repetida", [...path, "id"], `Criatura repetida: "${creature.id}"`));
+		creatureIds.add(creature.id);
+		for (const problem of creatureProblems(creature, template.checkDice, template.dice)) issues.push({
+			...problem,
+			path: [...path, ...problem.path]
+		});
+	});
+	const bytes = utf8Length(JSON.stringify(template));
+	if (bytes > 460800) issues.push(issue$1("sistema-grande-demais", [], `O sistema tem ${Math.ceil(bytes / 1024)} KB, mais que os ${TEMPLATE_MAX_BYTES / 1024} KB que a sessão consegue enviar. Encurte o códice, o bestiário ou o ícone.`));
+}
+/** Bytes do texto em UTF-8 (o domínio não depende do `TextEncoder` do navegador). */
+function utf8Length(text) {
+	let bytes = 0;
+	for (const char of text) {
+		const code = char.codePointAt(0) ?? 0;
+		bytes += code < 128 ? 1 : code < 2048 ? 2 : code < 65536 ? 3 : 4;
+	}
+	return bytes;
 }
 //#endregion
 //#region ../../packages/domain/src/template/validate.ts
@@ -7089,6 +7324,8 @@ object({
 	cover: CoverSchema.optional(),
 	secret: CampaignSecretSchema,
 	members: array(CampaignMemberSchema).max(LIMITS.members),
+	/** Bestiário da campanha (só no Mestre): criaturas dele, criadas ou copiadas do sistema. */
+	bestiary: BestiarySchema.optional(),
 	createdAt: TimestampSchema,
 	updatedAt: TimestampSchema
 });
@@ -7360,6 +7597,8 @@ function isConsistent(result) {
 	});
 	return total === result.total && printDice(expression) === result.expression;
 }
+var EffectSchema = string().trim().min(1).max(40);
+var ROUND_MAX = 9999;
 var CombatantSchema = object({
 	id: IdSchema,
 	name: LabelSchema,
@@ -7369,20 +7608,47 @@ var CombatantSchema = object({
 	/** Do jogador: assim ele reconhece a própria vez. */
 	userId: IdSchema.optional(),
 	/** Só o Mestre vê (ex.: o monstro que ainda não apareceu). */
-	hidden: boolean()
+	hidden: boolean(),
+	/** PV da criatura (só o Mestre vê o número; os jogadores, o estado aproximado). */
+	hp: object({
+		value: number().int().min(0).max(CREATURE_HP_MAX),
+		max: number().int().min(1).max(CREATURE_HP_MAX)
+	}).optional(),
+	/** Criatura de um bestiário: abre a ficha dela (ataques, habilidades) no painel do Mestre. */
+	creature: object({
+		origin: _enum(["sistema", "campanha"]),
+		id: IdSchema
+	}).optional(),
+	/** Condições do participante, na ordem em que foram marcadas. */
+	effects: array(EffectSchema).max(12).optional(),
+	/**
+	* Condições com duração: a última rodada em que a condição ainda vale. Ela acaba quando
+	* termina a vez do participante nessa rodada.
+	*/
+	effectUntil: record(EffectSchema, number().int().min(1).max(10098)).optional()
 });
 var uniqueIds = (combatants) => new Set(combatants.map((c) => c.id)).size === combatants.length;
 object({
 	phase: _enum(["preparando", "combate"]),
-	round: number().int().min(1).max(9999),
+	round: number().int().min(1).max(ROUND_MAX),
 	activeId: IdSchema.nullable(),
 	combatants: array(CombatantSchema).max(40)
 }).refine((t) => uniqueIds(t.combatants), "Participante repetido").refine((t) => t.activeId === null || t.combatants.some((c) => c.id === t.activeId), "Turno de quem não está no combate");
 object({
 	phase: _enum(["preparando", "combate"]),
-	round: number().int().min(1).max(9999),
+	round: number().int().min(1).max(ROUND_MAX),
 	activeId: IdSchema.nullable(),
-	combatants: array(CombatantSchema.omit({ hidden: true })).max(40)
+	combatants: array(CombatantSchema.omit({
+		hidden: true,
+		hp: true,
+		creature: true,
+		effectUntil: true
+	}).extend({
+		/** Estado aproximado de uma criatura com PV ("ferida"), no lugar do número. */
+		condition: _enum(WOUND_CONDITIONS).optional(),
+		/** Rodadas que faltam das condições com duração (só as que ainda valem). */
+		effectRounds: record(EffectSchema, number().int().min(1).max(10098)).optional()
+	})).max(40)
 }).refine((t) => uniqueIds(t.combatants), "Participante repetido").refine((t) => t.activeId === null || t.combatants.some((c) => c.id === t.activeId), "Turno de quem não está no combate");
 object({
 	id: IdSchema,
@@ -9768,7 +10034,7 @@ var lendas_d20_orc_default = {
 */
 var BUILTIN_TEMPLATES = [{
 	id: "dnd5e-srd",
-	version: "1.7.0",
+	version: "1.9.0",
 	name: "D&D 5ª Edição (SRD 5.1)",
 	description: "Ficha para personagens de D&D 5ª edição, com opção para as regras de 2024 (5.5): maestria de armas, talento de origem e a Exaustão nova. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium. This work includes material from the System Reference Document 5.2 (\"SRD 5.2\") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
 	author: "Tabularium",
@@ -9782,6 +10048,526 @@ var BUILTIN_TEMPLATES = [{
 	source: "builtin",
 	initiative: "iniciativa",
 	bonusTab: "Combate",
+	codex: [
+		{
+			"id": "vantagem",
+			"title": "Vantagem e desvantagem",
+			"category": "Regras",
+			"body": "Com **vantagem**, role dois d20 e use o maior; com **desvantagem**, o menor.\n\n- Várias fontes de vantagem não se somam: continua sendo um d20 a mais.\n- Se houver vantagem e desvantagem ao mesmo tempo, as duas se anulam e você rola um d20 só, por mais fontes que haja de cada lado."
+		},
+		{
+			"id": "testes",
+			"title": "Testes e CD",
+			"category": "Regras",
+			"body": "Para saber se algo dá certo, role **1d20 + modificador** contra uma **Classe de Dificuldade (CD)**. Igual ou maior que a CD, deu certo.\n\n| Tarefa | CD |\n|---|---|\n| Muito fácil | 5 |\n| Fácil | 10 |\n| Média | 15 |\n| Difícil | 20 |\n| Muito difícil | 25 |\n| Quase impossível | 30 |\n\n- **Teste de habilidade:** modificador do atributo, mais a proficiência se você tiver a perícia.\n- **Teste de resistência:** contra um efeito; a CD vem de quem o causou.\n- **Teste em grupo:** todos rolam; se metade ou mais conseguir, o grupo consegue.\n\nVeja também [[Vantagem e desvantagem]]."
+		},
+		{
+			"id": "acoes",
+			"title": "Ações em combate",
+			"category": "Combate",
+			"body": "No seu turno você tem **deslocamento**, **uma ação** e, às vezes, uma **ação bônus**. Fora do turno, uma **reação** por rodada (como o [[Ataque de oportunidade]]).\n\n- **Atacar:** um ataque corpo a corpo ou à distância (ou mais, com Ataque Extra).\n- **Conjurar uma magia** com tempo de conjuração de 1 ação.\n- **Disparada:** ganha deslocamento extra igual ao seu deslocamento.\n- **Desengajar:** seu movimento não provoca ataques de oportunidade neste turno.\n- **Esquivar:** até o seu próximo turno, ataques contra você têm desvantagem (se você puder ver o atacante) e você tem vantagem em resistências de Destreza.\n- **Ajudar:** um aliado tem vantagem no próximo teste ou ataque contra um alvo a até 1,5 m de você.\n- **Esconder-se:** teste de Destreza (Furtividade).\n- **Preparar:** escolha um gatilho e a ação; ela acontece como reação quando o gatilho ocorrer.\n- **Procurar:** teste de Sabedoria (Percepção) ou Inteligência (Investigação).\n- **Usar um objeto** que precise de ação.\n\nVeja também [[Cobertura]] e [[Cair a 0 PV]]."
+		},
+		{
+			"id": "oportunidade",
+			"title": "Ataque de oportunidade",
+			"category": "Combate",
+			"body": "Quando uma criatura hostil que você vê sai do seu alcance, você pode usar a **reação** para fazer um ataque corpo a corpo contra ela.\n\nNão provoca: usar a ação **Desengajar**, ser teleportado ou ser movido sem usar o próprio movimento (empurrado, por exemplo)."
+		},
+		{
+			"id": "cobertura",
+			"title": "Cobertura",
+			"category": "Combate",
+			"body": "| Cobertura | Efeito | Exemplo |\n|---|---|---|\n| Meia | +2 na CA e em resistências de Destreza | Mureta, móvel, outra criatura |\n| Três quartos | +5 na CA e em resistências de Destreza | Seteira, tronco grosso |\n| Total | Não pode ser alvo direto | Parede inteira |"
+		},
+		{
+			"id": "morte",
+			"title": "Cair a 0 PV",
+			"category": "Combate",
+			"body": "Com 0 PV você fica [[Inconsciente]] e começa a fazer **testes contra a morte** no início de cada turno: 1d20, sem modificador.\n\n- **10 ou mais:** sucesso. **9 ou menos:** falha.\n- **3 sucessos:** você fica estável (inconsciente, mas sem rolar mais).\n- **3 falhas:** você morre.\n- **1 natural:** conta como duas falhas. **20 natural:** você volta com 1 PV.\n- Sofrer dano a 0 PV conta uma falha; um acerto crítico, duas.\n\n> Se o dano que sobra depois de zerar os PV for igual ou maior que o seu PV máximo, a morte é instantânea.\n\nUm teste de Sabedoria (Medicina) CD 10, como ação, estabiliza uma criatura."
+		},
+		{
+			"id": "descanso",
+			"title": "Descanso",
+			"category": "Regras",
+			"body": "## Descanso curto\nPelo menos 1 hora sem nada cansativo. Você pode gastar **Dados de Vida**: cada um cura o resultado mais o modificador de Constituição.\n\n## Descanso longo\nPelo menos 8 horas, com no máximo 2 de atividade leve. Recupera todos os PV e metade dos Dados de Vida (no mínimo 1). Só um a cada 24 horas. Também tira um nível de [[Exaustão]]."
+		},
+		{
+			"id": "agarrado",
+			"title": "Agarrado",
+			"category": "Condições",
+			"body": "- Deslocamento 0, sem bônus de deslocamento.\n- Termina se quem agarra ficar [[Incapacitado]] ou se algo afastar a criatura do alcance dele.\n- Para se soltar: ação, teste de Força (Atletismo) ou Destreza (Acrobacia) contra o Atletismo de quem agarra."
+		},
+		{
+			"id": "amedrontado",
+			"title": "Amedrontado",
+			"category": "Condições",
+			"body": "- Desvantagem em testes e ataques enquanto a fonte do medo estiver à vista.\n- Não pode se aproximar da fonte do medo por vontade própria."
+		},
+		{
+			"id": "atordoado",
+			"title": "Atordoado",
+			"category": "Condições",
+			"body": "- [[Incapacitado]], não se move e mal consegue falar.\n- Falha automaticamente em resistências de Força e Destreza.\n- Ataques contra a criatura têm vantagem."
+		},
+		{
+			"id": "caido",
+			"title": "Caído",
+			"category": "Condições",
+			"body": "- Só se move rastejando, a não ser que se levante (custa metade do deslocamento).\n- Desvantagem nos próprios ataques.\n- Ataques contra a criatura têm vantagem se o atacante estiver a até 1,5 m; senão, desvantagem."
+		},
+		{
+			"id": "cego",
+			"title": "Cego",
+			"category": "Condições",
+			"body": "- Não enxerga: falha em testes que dependem da visão.\n- Ataques contra a criatura têm vantagem; os dela, desvantagem."
+		},
+		{
+			"id": "contido",
+			"title": "Contido",
+			"category": "Condições",
+			"body": "- Deslocamento 0.\n- Ataques contra a criatura têm vantagem; os dela, desvantagem.\n- Desvantagem em resistências de Destreza."
+		},
+		{
+			"id": "enfeiticado",
+			"title": "Enfeitiçado",
+			"category": "Condições",
+			"body": "- Não pode atacar quem a enfeitiçou nem mirá-lo com efeitos nocivos.\n- Quem a enfeitiçou tem vantagem em testes de interação social com ela."
+		},
+		{
+			"id": "envenenado",
+			"title": "Envenenado",
+			"category": "Condições",
+			"body": "- Desvantagem em ataques e testes de habilidade."
+		},
+		{
+			"id": "incapacitado",
+			"title": "Incapacitado",
+			"category": "Condições",
+			"body": "- Não pode fazer ações nem reações."
+		},
+		{
+			"id": "inconsciente",
+			"title": "Inconsciente",
+			"category": "Condições",
+			"body": "- [[Incapacitado]], não se move nem fala e não percebe o que acontece em volta.\n- Larga o que estiver segurando e fica [[Caído]].\n- Falha automaticamente em resistências de Força e Destreza.\n- Ataques contra a criatura têm vantagem; um acerto a até 1,5 m é crítico."
+		},
+		{
+			"id": "invisivel",
+			"title": "Invisível",
+			"category": "Condições",
+			"body": "- Não pode ser vista sem magia ou um sentido especial; para se esconder, conta como estar em escuridão total.\n- Ataques contra a criatura têm desvantagem; os dela, vantagem."
+		},
+		{
+			"id": "paralisado",
+			"title": "Paralisado",
+			"category": "Condições",
+			"body": "- [[Incapacitado]], não se move nem fala.\n- Falha automaticamente em resistências de Força e Destreza.\n- Ataques contra a criatura têm vantagem; um acerto a até 1,5 m é crítico."
+		},
+		{
+			"id": "petrificado",
+			"title": "Petrificado",
+			"category": "Condições",
+			"body": "- Vira pedra, com o que veste e carrega, e fica [[Incapacitado]], sem se mover nem falar.\n- Ataques contra a criatura têm vantagem; ela falha em resistências de Força e Destreza.\n- Resistência a todo dano; imune a veneno e doença (os que já tinha ficam suspensos)."
+		},
+		{
+			"id": "surdo",
+			"title": "Surdo",
+			"category": "Condições",
+			"body": "- Não ouve: falha em testes que dependem da audição."
+		},
+		{
+			"id": "exaustao",
+			"title": "Exaustão",
+			"category": "Condições",
+			"body": "A exaustão tem níveis, que se acumulam. Um [[Descanso|descanso longo]] tira um nível.\n\n## Regras de 2014\n| Nível | Efeito |\n|---|---|\n| 1 | Desvantagem em testes de habilidade |\n| 2 | Deslocamento pela metade |\n| 3 | Desvantagem em ataques e resistências |\n| 4 | PV máximo pela metade |\n| 5 | Deslocamento 0 |\n| 6 | Morte |\n\n## Regras de 2024 (5.5)\nCada nível tira **2** de todo teste de d20 e **1,5 m** do deslocamento. No nível 6, a criatura morre."
+		},
+		{
+			"id": "mestre",
+			"title": "Dicas para o Mestre",
+			"category": "Mestre",
+			"body": "## Encontros\nSome o XP das criaturas e compare com o grupo. Muitas criaturas pesam mais do que o XP sugere: vários inimigos fracos podem ser mais perigosos que um forte.\n\n## Na mesa\n- Uma falha não precisa travar a história: deixe que ela traga uma complicação.\n- Os PV das criaturas no combate ficam só com você; a mesa vê o estado (ferida, muito ferida…).\n\nAs CDs de referência estão em [[Testes e CD]].",
+			"gmOnly": true
+		}
+	],
+	creatureStats: [
+		"CA",
+		"Deslocamento",
+		"FOR",
+		"DES",
+		"CON",
+		"INT",
+		"SAB",
+		"CAR",
+		"Sentidos",
+		"ND"
+	],
+	bestiary: [
+		{
+			"id": "bandido",
+			"name": "Bandido",
+			"kind": "Humanoide médio, qualquer tendência não leal",
+			"hp": 11,
+			"initiative": "+1",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "12 (armadura de couro)"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "9 m"
+				},
+				{
+					"label": "FOR",
+					"value": "11 (+0)"
+				},
+				{
+					"label": "DES",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "CON",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "INT",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "SAB",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "CAR",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Percepção passiva 10"
+				},
+				{
+					"label": "ND",
+					"value": "1/8 (25 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "cimitarra",
+				"name": "Cimitarra",
+				"roll": "1d20+3",
+				"damage": "1d6+1",
+				"notes": "cortante, alcance 1,5 m"
+			}, {
+				"id": "besta-leve",
+				"name": "Besta leve",
+				"roll": "1d20+3",
+				"damage": "1d8+1",
+				"notes": "perfurante, distância 24/96 m"
+			}]
+		},
+		{
+			"id": "esqueleto",
+			"name": "Esqueleto",
+			"kind": "Morto-vivo médio, leal e mau",
+			"hp": 13,
+			"initiative": "+2",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "13 (restos de armadura)"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "9 m"
+				},
+				{
+					"label": "FOR",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "DES",
+					"value": "14 (+2)"
+				},
+				{
+					"label": "CON",
+					"value": "15 (+2)"
+				},
+				{
+					"label": "INT",
+					"value": "6 (−2)"
+				},
+				{
+					"label": "SAB",
+					"value": "8 (−1)"
+				},
+				{
+					"label": "CAR",
+					"value": "5 (−3)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Visão no escuro 18 m, Percepção passiva 9"
+				},
+				{
+					"label": "ND",
+					"value": "1/4 (50 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "espada-curta",
+				"name": "Espada curta",
+				"roll": "1d20+4",
+				"damage": "1d6+2",
+				"notes": "perfurante, alcance 1,5 m"
+			}, {
+				"id": "arco-curto",
+				"name": "Arco curto",
+				"roll": "1d20+4",
+				"damage": "1d6+2",
+				"notes": "perfurante, distância 24/96 m"
+			}],
+			"text": "**Vulnerável** a dano de concussão. **Imune** a dano de veneno; não pode ser envenenado nem ficar exausto.\n\nEntende os idiomas que conhecia em vida, mas não fala."
+		},
+		{
+			"id": "goblin",
+			"name": "Goblin",
+			"kind": "Humanoide pequeno (goblinoide), neutro e mau",
+			"hp": 7,
+			"initiative": "+2",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "15 (armadura de couro, escudo)"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "9 m"
+				},
+				{
+					"label": "FOR",
+					"value": "8 (−1)"
+				},
+				{
+					"label": "DES",
+					"value": "14 (+2)"
+				},
+				{
+					"label": "CON",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "INT",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "SAB",
+					"value": "8 (−1)"
+				},
+				{
+					"label": "CAR",
+					"value": "8 (−1)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Visão no escuro 18 m, Percepção passiva 9"
+				},
+				{
+					"label": "ND",
+					"value": "1/4 (50 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "cimitarra",
+				"name": "Cimitarra",
+				"roll": "1d20+4",
+				"damage": "1d6+2",
+				"notes": "cortante, alcance 1,5 m"
+			}, {
+				"id": "arco-curto",
+				"name": "Arco curto",
+				"roll": "1d20+4",
+				"damage": "1d6+2",
+				"notes": "perfurante, distância 24/96 m"
+			}],
+			"text": "**Fuga Ágil.** Pode usar a ação Desengajar ou Esconder como ação bônus em cada um dos seus turnos.\n\nPerícia: Furtividade +6."
+		},
+		{
+			"id": "lobo",
+			"name": "Lobo",
+			"kind": "Fera média, sem tendência",
+			"hp": 11,
+			"initiative": "+2",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "13 (armadura natural)"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "12 m"
+				},
+				{
+					"label": "FOR",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "DES",
+					"value": "15 (+2)"
+				},
+				{
+					"label": "CON",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "INT",
+					"value": "3 (−4)"
+				},
+				{
+					"label": "SAB",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "CAR",
+					"value": "6 (−2)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Percepção passiva 13"
+				},
+				{
+					"label": "ND",
+					"value": "1/4 (50 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "mordida",
+				"name": "Mordida",
+				"roll": "1d20+4",
+				"damage": "2d4+2",
+				"notes": "perfurante; o alvo faz um teste de resistência de Força CD 11 ou fica caído"
+			}],
+			"text": "**Audição e Faro Aguçados.** Vantagem em testes de Sabedoria (Percepção) que usem a audição ou o olfato.\n\n**Táticas de Matilha.** Vantagem nas jogadas de ataque contra uma criatura se pelo menos um aliado do lobo, que não esteja incapacitado, estiver a até 1,5 m dela."
+		},
+		{
+			"id": "orc",
+			"name": "Orc",
+			"kind": "Humanoide médio (orc), caótico e mau",
+			"hp": 15,
+			"initiative": "+1",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "13 (gibão de peles)"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "9 m"
+				},
+				{
+					"label": "FOR",
+					"value": "16 (+3)"
+				},
+				{
+					"label": "DES",
+					"value": "12 (+1)"
+				},
+				{
+					"label": "CON",
+					"value": "16 (+3)"
+				},
+				{
+					"label": "INT",
+					"value": "7 (−2)"
+				},
+				{
+					"label": "SAB",
+					"value": "11 (+0)"
+				},
+				{
+					"label": "CAR",
+					"value": "10 (+0)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Visão no escuro 18 m, Percepção passiva 10"
+				},
+				{
+					"label": "ND",
+					"value": "1/2 (100 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "machado-grande",
+				"name": "Machado grande",
+				"roll": "1d20+5",
+				"damage": "1d12+3",
+				"notes": "cortante, alcance 1,5 m"
+			}, {
+				"id": "azagaia",
+				"name": "Azagaia",
+				"roll": "1d20+5",
+				"damage": "1d6+3",
+				"notes": "perfurante, alcance 1,5 m ou distância 9/36 m"
+			}],
+			"text": "**Agressivo.** Como ação bônus, pode se mover até o seu deslocamento em direção a uma criatura hostil que consiga ver."
+		},
+		{
+			"id": "zumbi",
+			"name": "Zumbi",
+			"kind": "Morto-vivo médio, neutro e mau",
+			"hp": 22,
+			"initiative": "-2",
+			"stats": [
+				{
+					"label": "CA",
+					"value": "8"
+				},
+				{
+					"label": "Deslocamento",
+					"value": "6 m"
+				},
+				{
+					"label": "FOR",
+					"value": "13 (+1)"
+				},
+				{
+					"label": "DES",
+					"value": "6 (−2)"
+				},
+				{
+					"label": "CON",
+					"value": "16 (+3)"
+				},
+				{
+					"label": "INT",
+					"value": "3 (−4)"
+				},
+				{
+					"label": "SAB",
+					"value": "6 (−2)"
+				},
+				{
+					"label": "CAR",
+					"value": "5 (−3)"
+				},
+				{
+					"label": "Sentidos",
+					"value": "Visão no escuro 18 m, Percepção passiva 8"
+				},
+				{
+					"label": "ND",
+					"value": "1/4 (50 XP)"
+				}
+			],
+			"attacks": [{
+				"id": "pancada",
+				"name": "Pancada",
+				"roll": "1d20+3",
+				"damage": "1d6+1",
+				"notes": "concussão, alcance 1,5 m"
+			}],
+			"text": "**Fortitude de Morto-Vivo.** Se o dano reduzir o zumbi a 0 PV, ele faz um teste de resistência de Constituição com CD 5 + o dano sofrido, a menos que o dano seja radiante ou de um acerto crítico. Se passar, fica com 1 PV.\n\n**Imune** a dano de veneno; não pode ser envenenado."
+		}
+	],
 	fields: [
 		{
 			"id": "nome",
@@ -10533,7 +11319,8 @@ var BUILTIN_TEMPLATES = [{
 			"key": "hp",
 			"label": "Pontos de Vida",
 			"type": "resource",
-			"default": 10
+			"default": 10,
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "dados_vida",
@@ -10547,7 +11334,11 @@ var BUILTIN_TEMPLATES = [{
 			"key": "dados_vida_restantes",
 			"label": "Dados de Vida restantes",
 			"type": "resource",
-			"default": 1
+			"default": 1,
+			"recover": {
+				"rest": "longo",
+				"amount": "metade"
+			}
 		},
 		{
 			"id": "sucessos_morte",
@@ -10558,7 +11349,8 @@ var BUILTIN_TEMPLATES = [{
 			"min": 0,
 			"max": 3,
 			"integer": true,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "curto" }
 		},
 		{
 			"id": "falhas_morte",
@@ -10569,7 +11361,8 @@ var BUILTIN_TEMPLATES = [{
 			"min": 0,
 			"max": 3,
 			"integer": true,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "curto" }
 		},
 		{
 			"id": "condicoes",
@@ -10646,7 +11439,11 @@ var BUILTIN_TEMPLATES = [{
 			"max": 6,
 			"integer": true,
 			"display": "marcadores",
-			"description": "Na 2024: cada nível dá −2 nos testes de d20 e −1,5 m de deslocamento; no 6º nível o personagem morre."
+			"description": "Na 2024: cada nível dá −2 nos testes de d20 e −1,5 m de deslocamento; no 6º nível o personagem morre.",
+			"recover": {
+				"rest": "longo",
+				"amount": -1
+			}
 		},
 		{
 			"id": "exaustao_penalidade",
@@ -10859,7 +11656,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 1º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_2",
@@ -10867,7 +11665,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 2º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_3",
@@ -10875,7 +11674,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 3º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_4",
@@ -10883,7 +11683,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 4º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_5",
@@ -10891,7 +11692,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 5º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_6",
@@ -10899,7 +11701,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 6º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_7",
@@ -10907,7 +11710,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 7º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_8",
@@ -10915,7 +11719,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 8º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "espacos_9",
@@ -10923,7 +11728,8 @@ var BUILTIN_TEMPLATES = [{
 			"label": "Espaços de magia de 9º nível",
 			"type": "resource",
 			"default": 0,
-			"display": "marcadores"
+			"display": "marcadores",
+			"recover": { "rest": "longo" }
 		},
 		{
 			"id": "magias",
