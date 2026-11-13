@@ -6459,7 +6459,12 @@ var FieldDefSchema = discriminatedUnion("type", [
 		attack: object({
 			bonus: IdSchema,
 			damage: IdSchema.optional()
-		}).optional()
+		}).optional(),
+		/**
+		* `cartoes`: cada item é um cartão com os textos longos sempre abertos (habilidades, poderes,
+		* rituais com descrição). Sem isso, o texto longo abre por item e a linha fica curta.
+		*/
+		display: _enum(["cartoes"]).optional()
 	})
 ]);
 /** Tipos cujo valor pode ser usado em fórmulas. */
@@ -6512,6 +6517,8 @@ var LayoutNodeSchema = lazy(() => discriminatedUnion("kind", [object({
 	secondary: IdSchema.optional()
 })]));
 var LayoutSchema = array(LayoutNodeSchema).max(LIMITS.layoutNodes);
+/** Estilos de ficha: o visual do tipo de jogo (medieval, terror). */
+var SHEET_STYLES = ["medieval", "sombrio"];
 /** Fonte dos títulos na ficha do sistema: a condensada do app, uma serifada ou de máquina. */
 var HEADING_FONTS = [
 	"condensada",
@@ -6579,6 +6586,11 @@ var SystemTemplateSchema = object({
 	accent: _enum(SYSTEM_ACCENTS).optional(),
 	/** Fonte dos títulos da ficha e da campanha (ex.: máquina de escrever no Chamado de Cthulhu). */
 	headingFont: _enum(HEADING_FONTS).optional(),
+	/**
+	* Estilo da ficha e da campanha: `medieval` (molduras douradas, ornamentos, como pergaminho)
+	* ou `sombrio` (granulado e sombras, como um dossiê de terror). Sem isso, o painel liso.
+	*/
+	style: _enum(SHEET_STYLES).optional(),
 	/** Versão mínima do app capaz de abrir este template. */
 	minAppVersion: SemVerSchema.optional(),
 	/** Códice: páginas de consulta (habilidades, regras, itens…), lidas por toda a mesa. */
@@ -6594,7 +6606,12 @@ var SystemTemplateSchema = object({
 		/** Reservado para uma variante de telas pequenas. O app ainda não usa: o grid de `full` já se adapta. */
 		compact: LayoutSchema.optional(),
 		/** Campos exibidos no card do jogador no painel do Mestre (HP, mana, condições…). */
-		gmSummary: array(IdSchema).max(LIMITS.gmSummary).optional()
+		gmSummary: array(IdSchema).max(LIMITS.gmSummary).optional(),
+		/**
+		* Seções (pelo título) sempre à vista no painel lateral da ficha, junto de PV e defesa
+		* (ex.: os atributos). Em telas menores, ficam acima das abas.
+		*/
+		side: array(LabelSchema).max(6).optional()
 	})
 });
 /** Referência de uma ficha (ou campanha) ao template em que se baseia. */
@@ -10088,12 +10105,13 @@ var lendas_d20_orc_default = {
 */
 var BUILTIN_TEMPLATES = [{
 	id: "dnd5e-srd",
-	version: "1.11.0",
+	version: "1.12.0",
 	name: "D&D 5ª Edição (SRD 5.1)",
 	description: "Ficha para personagens de D&D 5ª edição, com opção para as regras de 2024 (5.5): maestria de armas, talento de origem e a Exaustão nova. This work includes material taken from the System Reference Document 5.1 (\"SRD 5.1\") by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode. Termos traduzidos para o português e organizados como ficha pelo projeto Tabularium. This work includes material from the System Reference Document 5.2 (\"SRD 5.2\") by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
 	author: "Tabularium",
 	accent: "violeta",
 	headingFont: "serifa",
+	style: "medieval",
 	license: "CC-BY-4.0",
 	language: "pt-BR",
 	tags: [
@@ -11831,7 +11849,8 @@ var BUILTIN_TEMPLATES = [{
 					"label": "Descrição",
 					"type": "longtext"
 				}
-			]
+			],
+			"display": "cartoes"
 		},
 		{
 			"id": "pc",
@@ -12041,7 +12060,8 @@ var BUILTIN_TEMPLATES = [{
 					"type": "longtext"
 				}
 			],
-			"description": "Características de raça e classe, talentos e outras habilidades."
+			"description": "Características de raça e classe, talentos e outras habilidades.",
+			"display": "cartoes"
 		}
 	],
 	layouts: {
@@ -12083,20 +12103,8 @@ var BUILTIN_TEMPLATES = [{
 					}
 				],
 				"tab": "Principal",
-				"display": "circulo"
-			},
-			{
-				"kind": "section",
-				"title": "Geral",
-				"columns": 2,
-				"children": [{
-					"kind": "field",
-					"fieldId": "bonus_prof"
-				}, {
-					"kind": "field",
-					"fieldId": "inspiracao"
-				}],
-				"display": "compacto"
+				"display": "circulo",
+				"width": "metade"
 			},
 			{
 				"kind": "section",
@@ -12152,7 +12160,21 @@ var BUILTIN_TEMPLATES = [{
 						"fieldId": "salv_car"
 					}
 				],
-				"display": "linhas"
+				"display": "linhas",
+				"width": "metade"
+			},
+			{
+				"kind": "section",
+				"title": "Geral",
+				"columns": 2,
+				"children": [{
+					"kind": "field",
+					"fieldId": "bonus_prof"
+				}, {
+					"kind": "field",
+					"fieldId": "inspiracao"
+				}],
+				"display": "compacto"
 			},
 			{
 				"kind": "section",
@@ -12680,6 +12702,11 @@ var BUILTIN_TEMPLATES = [{
 			"condicoes",
 			"exaustao",
 			"inspiracao"
+		],
+		"side": [
+			"Atributos",
+			"Testes de resistência",
+			"Geral"
 		]
 	}
 }].map((json) => SystemTemplateSchema.parse(json));
