@@ -1,6 +1,6 @@
 {
   "formatVersion": 1,
-  "updatedAt": "2026-11-13T00:21:04.000Z",
+  "updatedAt": "2026-11-14T13:45:22.000Z",
   "templates": [
     {
       "id": "chamado-cthulhu-7e-fan",
@@ -43,6 +43,13 @@
           "sha256": "588fecf61db7fb26912066f717c774197787eb517f68f059af4f672686d39a7a",
           "size": 35470,
           "publishedAt": "2026-11-13T00:21:04.000Z",
+          "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.4.0",
+          "sha256": "c5bacf6755e71aeabe31a9fc4ded9690c3a6a6189ce7b2742c45c9accd27f4b0",
+          "size": 35520,
+          "publishedAt": "2026-11-14T13:45:22.000Z",
           "minAppVersion": "0.2.0"
         }
       ]
@@ -101,6 +108,13 @@
           "size": 25173,
           "publishedAt": "2026-11-13T00:21:04.000Z",
           "minAppVersion": "1.0.0"
+        },
+        {
+          "version": "1.7.0",
+          "sha256": "01e72bbff2cf83c11e9f0449420cda9e885b6a5bf397c782374981dce3110e35",
+          "size": 25173,
+          "publishedAt": "2026-11-14T13:45:22.000Z",
+          "minAppVersion": "1.0.0"
         }
       ]
     },
@@ -144,6 +158,13 @@
           "sha256": "d02ba38db3e4878eb9be5e7fa99719ee27cea1edc87b8eefe72ba5604307a53d",
           "size": 53197,
           "publishedAt": "2026-11-13T00:21:04.000Z",
+          "minAppVersion": "1.0.0"
+        },
+        {
+          "version": "1.10.0",
+          "sha256": "29272eb399d7136fd2f3c0ef15a487d71e62ee0f9916fa0faf87da3a2db5d469",
+          "size": 53244,
+          "publishedAt": "2026-11-14T13:45:22.000Z",
           "minAppVersion": "1.0.0"
         }
       ]
@@ -196,6 +217,13 @@
           "size": 65150,
           "publishedAt": "2026-11-13T00:21:04.000Z",
           "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.6.0",
+          "sha256": "26b8bacb7da99132300bc6edc3d8035281abd29995596beb85ff4355107fffb4",
+          "size": 65197,
+          "publishedAt": "2026-11-14T13:45:22.000Z",
+          "minAppVersion": "0.2.0"
         }
       ]
     },
@@ -239,6 +267,13 @@
           "sha256": "93cca388266a59de85e22487a46e9a15eabed892a041848a4a4b6d7c79a3a787",
           "size": 47955,
           "publishedAt": "2026-11-13T00:21:04.000Z",
+          "minAppVersion": "0.2.0"
+        },
+        {
+          "version": "1.4.0",
+          "sha256": "04fd1387ebb12488451e2f09536cbd2566dc830a28227b8955290524c93c5d2f",
+          "size": 48006,
+          "publishedAt": "2026-11-14T13:45:22.000Z",
           "minAppVersion": "0.2.0"
         }
       ]
